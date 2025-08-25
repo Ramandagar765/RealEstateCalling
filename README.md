@@ -1,97 +1,107 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Real Estate Calling App
 
-# Getting Started
+A React Native app for managing real estate calling campaigns with an iPhone-style interface.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Features
 
-## Step 1: Start Metro
+- **Call Dashboard**: View all calls with filtering by status (All, Successful, Unsuccessful)
+- **iPhone-Style UI**: Clean, modern interface mimicking the iPhone's call history
+- **Call Actions**: Tap to call contacts directly from the app
+- **Call Details**: View detailed information about each call
+- **Statistics**: Real-time stats showing total calls, success rate, and more
+- **Static Data**: Currently uses mock data for demonstration
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## App Structure
 
-To start the Metro dev server, run the following command from the root of your React Native project:
-
-```sh
-# Using npm
-npm start
-
-# OR using Yarn
-yarn start
+```
+src/
+├── components/
+│   └── common/
+│       ├── CallItem.js          # Individual call row component
+│       ├── TabBar.js            # Tab navigation component
+│       └── CallStats.js         # Statistics display component
+├── screens/
+│   └── Dashboard/
+│       └── CallDashboard.js     # Main dashboard screen
+├── Utils/
+│   └── mockData.js              # Mock data and helper functions
+└── commonStyles/
+    └── style-layout.js          # Shared styling utilities
 ```
 
-## Step 2: Build and run your app
+## Components
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+### CallDashboard
+Main screen that displays:
+- Header with "Calls" title and "Edit" button
+- Statistics card showing call metrics
+- Tab bar for filtering calls
+- Scrollable list of call items
 
-### Android
+### CallItem
+Individual call row featuring:
+- Contact name and phone number
+- Call status indicator (checkmark for successful, call icon for unsuccessful)
+- Last call time
+- Call count (if multiple calls)
+- Call button (green circle)
+- Info button (blue circle with "i")
 
-```sh
-# Using npm
-npm run android
+### TabBar
+Segmented control for filtering calls by status:
+- All
+- Successful
+- Unsuccessful
 
-# OR using Yarn
-yarn android
-```
+### CallStats
+Statistics display showing:
+- Total calls
+- Successful calls
+- Unsuccessful calls
+- Success rate percentage
 
-### iOS
+## Usage
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+1. **View Calls**: The app opens to the main dashboard showing all calls
+2. **Filter Calls**: Use the tab bar to filter by call status
+3. **Make Calls**: Tap the green call button to initiate a phone call
+4. **View Details**: Tap the blue info button or the call row to see details
+5. **View Stats**: Statistics are displayed at the top of the screen
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+## Design Features
 
-```sh
-bundle install
-```
+- **iPhone-Inspired**: Clean, minimalist design following iOS design principles
+- **Responsive**: Adapts to different screen sizes
+- **Accessible**: Proper touch targets and visual feedback
+- **Consistent**: Uses shared styling system for consistency
 
-Then, and every time you update your native dependencies, run:
+## Technical Details
 
-```sh
-bundle exec pod install
-```
+- **React Native**: Built with React Native for cross-platform compatibility
+- **Navigation**: Uses React Navigation for screen management
+- **Styling**: Custom styling system with reusable components
+- **Icons**: Uses React Native Vector Icons (Ionicons)
+- **Phone Integration**: Uses Linking API to initiate phone calls
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+## Future Enhancements
 
-```sh
-# Using npm
-npm run ios
+- Backend integration for real data
+- User authentication
+- Call logging and notes
+- Rescheduling functionality
+- Admin panel for contact management
+- Push notifications
+- Offline support
 
-# OR using Yarn
-yarn ios
-```
+## Getting Started
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+1. Install dependencies: `npm install`
+2. Run on iOS: `npx react-native run-ios`
+3. Run on Android: `npx react-native run-android`
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+## Dependencies
 
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+- React Native
+- React Navigation
+- React Native Vector Icons
+- Redux (for future state management)
