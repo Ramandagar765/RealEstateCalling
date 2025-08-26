@@ -15,8 +15,8 @@ import { MyToast } from '#/Utils';
     const dispatch = useDispatch();
     const responseDataUser = useSelector((state) => state.user);
     const [form_data, set_formdata] = useState({
-      email: 'raman2@company.com',
-      password: 'caller123',
+      email: '',
+      password: '',
     });
   
     const handleData = (field) => (text) => {

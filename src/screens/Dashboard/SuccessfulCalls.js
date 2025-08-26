@@ -49,7 +49,12 @@ const SuccessfulCalls = ({ navigation }) => {
   const handleSaveOutcome = async (callData) => {
     if (!pendingContact) return setShowOutcome(false);
     try {
-      await dispatch(recordCall(callData));
+      // Ensure we pass contactId, not the call record id
+      const updatedCallData = {
+        ...callData,
+        contactId: pendingContact.contact.id
+      };
+      await dispatch(recordCall(updatedCallData));
       setShowOutcome(false);
       setPendingContact(null);
       hasShownModal.current = false;

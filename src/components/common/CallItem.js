@@ -12,21 +12,14 @@ import ContactAvatar from './ContactAvatar';
 
 const CallItem = ({ item, onInfoPress, onCallPress, onWhatsAppPress, hideCallButton = false }) => {
   return (
-    <TouchableOpacity 
-      style={[WT('100%'), L.fdR, L.aiC, HT(70), L.asC, L.brB05, { borderColor: 'gray' }, L.pH15, L.jcC]}
-      activeOpacity={0.7}
-      onPress={() => onInfoPress?.(item)}
-    >
-      {/* Contact Avatar */}
+    <TouchableOpacity style={[WT('100%'), L.fdR, L.aiC, HT(70), L.asC, L.brB05, { borderColor: 'gray' }, L.pH15, L.jcC]} activeOpacity={0.7}
+      onPress={() => onInfoPress?.(item)}>
       <ContactAvatar name={item?.name} size={40} style={[L.mR15, L.aiC, L.jcC, C.bgTrans, L.br03]} />
-      
-      {/* Contact Info */}
       <View style={[L.f1]}>
         <Text style={[F.ffM, F.fsOne6, F.fw6, C.fcBlack]}>{item?.name}</Text>
         <Text style={[F.fsOne6, C.fcGray, L.mT2]}>{item?.phone}</Text>
       </View>
       
-      {/* Time and Actions */}
       <View style={[L.fdR, L.aiC]}>
         <Text style={[F.fsOne4, C.fcGray, L.mR15]}>{item?.lastCallTime || '2:24PM'}</Text>
         {!hideCallButton && (

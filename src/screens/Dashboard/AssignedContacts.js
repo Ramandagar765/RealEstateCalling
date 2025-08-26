@@ -7,6 +7,7 @@ import ModalRoot from '#/components/common/Modal';
 import { Header, Loader } from '#/components/common';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchContacts, fetchDashboardStats, recordCall } from './store';
+import EmptyList from '#/components/common/EmptyList';
 
 const AssignedContacts = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -45,9 +46,9 @@ const AssignedContacts = ({ navigation }) => {
     const contact = {
       id: item.contact.id,
       contact: {
-        id: item.contact.id,
-        name: item.contact.name,
-        phone: item.contact.phone
+        id: item?.contact.id,
+        name: item?.contact.name,
+        phone: item?.contact.phone
       },
       assignmentId: item.assignmentId
     };
@@ -60,13 +61,14 @@ const AssignedContacts = ({ navigation }) => {
     if (!pendingContact) return setShowOutcome(false);
 
     try {
-      await dispatch(recordCall(callData));
+      const updatedCallData = {
+        ...callData,
+        contactId: pendingContact.contact.id
+      };
+      dispatch(recordCall(updatedCallData));
       setShowOutcome(false);
       setPendingContact(null);
       hasShownModal.current = false;
-      // Refresh the contacts list
-      dispatch(fetchContacts({ page: 1, size: 20 }));
-      dispatch(fetchDashboardStats());
     } catch (error) {
       console.error('Error recording call:', error);
     }
@@ -95,6 +97,9 @@ const AssignedContacts = ({ navigation }) => {
       status: item.latestCall?.status || 'pending',
       notes: item.contact.notes || item.latestCall?.notes
     };
+    if(item?.callStatus !== 'not_called') {
+      return; 
+    }
 
     return (
       <CallItem
@@ -103,7 +108,7 @@ const AssignedContacts = ({ navigation }) => {
         onCallPress={() => handleStartCall(item)}
         onWhatsAppPress={() => {
           const phone = item.contact.phone.replace(/\s+/g, '');
-          const whatsappUrl = `whatsapp://send?phone=${8683817890}`;
+          const whatsappUrl = `whatsapp://send?phone=${phone}`;
           Linking.openURL(whatsappUrl);
         }}
       />
@@ -115,7 +120,29 @@ const AssignedContacts = ({ navigation }) => {
       <Header navigation={navigation} label_center='Calls' showDrawer={true} ic_right='person-circle-outline' ic_right_style={[C.bgWhite]} onPressRight={() => navigation.navigate("Profile")} />
 
       {responseDataDashBoard?.isLoading && <Loader />}
-
+      <View style={[L.pH20, L.pV10, C.bgLGray, L.jcC, L.aiC, L.bR10, L.mB10]}>
+        <View style={[L.fdR, L.jcSB, L.w100, L.mT10]}>
+          <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5]}>
+            <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Assigned Contacts</Text>
+            <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.totalAssigned || 0}</Text>
+          </View>
+          <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5]}>
+            <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Scheduled Calls</Text>
+            <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.scheduledCalls || 0}</Text>
+          </View>
+        </View>
+        <View style={[L.fdR, L.jcSB, L.w100, L.mT10]}>
+          <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5]}>
+            <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Unsuccessful Calls</Text>
+            <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.noAnswer || 0}</Text>
+          </View>
+          <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5]}>
+            <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Closed Deals</Text>
+            <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.closedDeals || 0}</Text>
+          </View>
+        </View>
+      </View>
+      
       <FlatList
         data={responseDataDashBoard?.contacts || []}
         renderItem={renderContactItem}
@@ -130,6 +157,7 @@ const AssignedContacts = ({ navigation }) => {
             tintColor={C.colorPrimary}
           />
         }
+        ListEmptyComponent={()=>!responseDataDashBoard?.isLoading && <EmptyList/>}
       />
 
       {/* Info Modal */}

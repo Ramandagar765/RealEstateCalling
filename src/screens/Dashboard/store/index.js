@@ -2,6 +2,8 @@ import { performGetRequest, performPostRequest } from '#/constants/axios-utils';
 import { MyToast, responseHandler } from '#/Utils';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { API } from '#/shared/API-end-points';
+import RootNavigation from '#/navigation/RootNavigation';
+import { log_out } from '#/screens/User/store';
 
 // Fetch dashboard stats
 export const fetchDashboardStats = createAsyncThunk('dashboard/fetchStats', async (_, { dispatch }) => {
@@ -10,9 +12,7 @@ export const fetchDashboardStats = createAsyncThunk('dashboard/fetchStats', asyn
     await performGetRequest(API.dashboard).then(res => {
         const apiResponse = responseHandler(res);
         console.log('apiResponse?.data?.data', apiResponse?.data?.data)
-        if (apiResponse?.data.success) {
-            dispatch(setStats(apiResponse?.data?.data));
-        }
+        if (apiResponse?.data?.success) dispatch(setStats(apiResponse?.data?.data));
         dispatch(common_state())
     }).catch(error => {
         console.log('failure', error);
@@ -28,9 +28,7 @@ export const fetchContacts = createAsyncThunk('dashboard/fetchContacts', async (
     dispatch(common_state({ isLoading: true }));
     const queryParams = new URLSearchParams({
         page: params.page || 1,
-        size: params.size || 20,
-        ...(params.search && { search: params.search }),
-        ...(params.status && { status: params.status })
+        size: params.size || 50,
     });
     
     await performGetRequest(`${API.contacts}?${queryParams}`).then(res => {
@@ -155,20 +153,15 @@ export const recordCall = createAsyncThunk('dashboard/recordCall', async (data, 
         const apiResponse = responseHandler(res);
         console.log('recordCall response', apiResponse?.data?.data)
         if (apiResponse?.data.success) {
-            // Refresh all relevant lists based on outcome
             dispatch(fetchContacts({ page: 1, size: 20 }));
             dispatch(fetchDashboardStats());
-            
-            // Refresh specific lists based on call outcome
             if (data.status === 'successful') {
                 if (data.outcome === 'deal_closed') {
                     dispatch(fetchClosedDeals({ page: 1, size: 20 }));
-                } else if (data.outcome === 'interested' || data.outcome === 'try_again') {
+                } else if (data.outcome === 'interested') {
                     dispatch(fetchRescheduledCalls({ page: 1, size: 20 }));
                 }
-                // Note: not_interested doesn't appear in any list, just removes from assigned
             } else {
-                // Unsuccessful calls
                 dispatch(fetchUnsuccessfulCalls({ page: 1, size: 20 }));
             }
             
@@ -180,6 +173,28 @@ export const recordCall = createAsyncThunk('dashboard/recordCall', async (data, 
         const apiResponse = responseHandler(error.response);
         MyToast(apiResponse?.data?.message ?? '');
         dispatch(common_state());
+    });
+});
+
+
+export const verify_token = createAsyncThunk('auth/verify_token', async (_, { dispatch }) => {
+    dispatch(common_state({ isLoading: true }));
+    await performGetRequest(API.verifyToken).then(res => {
+        const apiResponse = responseHandler(res);
+        console.log('verifyToken apiResponse?.data', apiResponse?.data)
+        if (apiResponse?.data.success) {
+            RootNavigation.navigate('DashBoard');
+        } else {
+            dispatch(common_state());
+            dispatch(log_out());
+            RootNavigation.navigate('Login');
+        }
+        dispatch(common_state());
+    }).catch(error => {
+        RootNavigation.replace('Login');
+        const apiResponse = responseHandler(error?.response);
+        dispatch(common_state());
+        dispatch(log_out()); 
     });
 });
 

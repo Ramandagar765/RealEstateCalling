@@ -15,7 +15,7 @@ const App = () => {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <NavigationContainer ref={navigationRef}>
-          <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName='Login'>
+          <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName='Splash'>
             <Stack.Screen name="Splash" component={Splash} />
             <Stack.Screen name='Login' component={Login} />
             <Stack.Screen name="DashBoard" component={DrawerNavigator} />

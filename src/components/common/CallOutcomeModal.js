@@ -17,7 +17,6 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
   const successfulOutcomes = [
     { label: 'Interested', value: 'interested' },
     { label: 'Not Interested', value: 'not_interested' },
-    { label: 'Try Again', value: 'try_again' },
     { label: 'Deal Closed', value: 'deal_closed' },
   ];
 
@@ -44,7 +43,7 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
       payload.status = 'successful';
       payload.outcome = outcome;
 
-      if (outcome === 'interested' || outcome === 'try_again') {
+      if (outcome === 'interested') {
         payload.followUpRequired = true;
         payload.scheduledFor = scheduledDate.toISOString();
       } else if (outcome === 'deal_closed') {
@@ -91,14 +90,13 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
   };
 
   const needsScheduling = () => {
-    return callStatus === 'successful' && (outcome === 'interested' || outcome === 'try_again');
+    return callStatus === 'successful' && outcome === 'interested';
   };
 
   const getButtonLabel = () => {
     if (callStatus === 'successful') {
       if (outcome === 'interested') return 'Schedule Follow-up';
       if (outcome === 'not_interested') return 'Mark Not Interested';
-      if (outcome === 'try_again') return 'Reschedule Call';
       if (outcome === 'deal_closed') return 'Mark as Closed Deal';
     }
     return 'Mark Unsuccessful';
@@ -183,7 +181,7 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
         {needsScheduling() && (
           <View style={[WT('100%'), L.mB15]}>
             <Text style={[F.fsOne8, F.fw5, C.fcBlack, F.ffM, L.mB10]}>
-              {outcome === 'interested' ? 'Schedule Follow-up Call' : 'Schedule Retry'}
+              Schedule Follow-up Call
             </Text>
             <TouchableOpacity
               activeOpacity={0.8}

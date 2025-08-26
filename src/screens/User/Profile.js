@@ -53,12 +53,12 @@ const Profile = ({ navigation }) => {
           <View style={[WT(100)]} />
           <Text style={[C.fcBlack, F.fsOne5, F.ffM]}>caller</Text>
         </View>
-        <CustomButton
+        {/* <CustomButton
           label="Update Profile"
           style={[L.mT20, WT('90%'), HT(40), L.asC, C.bgBlack]}
           onPress={() => alert('Profile Updated')}
           txtStyle={[F.fsOne5, F.ffM, C.fcWhite]}
-        />
+        /> */}
         <CustomButton
           label="SignOut"
           style={[L.mT20, WT('90%'), HT(40), L.asC, C.bgBlack]}

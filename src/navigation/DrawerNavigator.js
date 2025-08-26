@@ -41,14 +41,14 @@ const CustomDrawerContent = ({ navigation, state }) => {
       name: 'UnsuccessfulCalls',
       label: 'Unsuccessful Calls',
       icon: 'close-circle-outline',
-      count: dashboardStats.failed + dashboardStats.noAnswer + dashboardStats.busy || 0,
+      count: dashboardStats?.noAnswer || 0,
       component: UnsuccessfulCalls
     },
     {
       name: 'ClosedDeals',
       label: 'Closed Deals',
       icon: 'trophy-outline',
-      count: 0, // This might be a separate count from backend
+      count: dashboardStats.closedDeals, // This might be a separate count from backend
       component: ClosedDeals
     }
   ];
@@ -70,39 +70,16 @@ const CustomDrawerContent = ({ navigation, state }) => {
           const isActive = activeRouteIndex === index;
           
           return (
-            <TouchableOpacity
-              key={item.name}
-              style={[
-                L.fdR, L.aiC, L.jcSB, L.pH20, L.pV15,
-                isActive && C.bgLightBlue
-              ]}
+            <TouchableOpacity key={item.name} style={[L.fdR, L.aiC, L.jcSB, L.pH20, L.pV15,isActive && C.bgLightBlue]}
               onPress={() => navigation.navigate(item.name)}
-              activeOpacity={0.7}
-            >
+              activeOpacity={0.7}>
               <View style={[L.fdR, L.aiC]}>
-                <Ionicons 
-                  name={item.icon} 
-                  size={24} 
-                  color={isActive ? C.colorPrimary : '#666'} 
-                />
-                <Text style={[
-                  F.fsOne6, F.fw5, F.ffM, L.mL15,
-                  isActive ? C.fcBlue : C.fcBlack
-                ]}>
-                  {item.label}
-                </Text>
+                <Ionicons name={item.icon} size={24} color={isActive ? C.colorPrimary : '#666'} />
+                <Text style={[F.fsOne6, F.fw5, F.ffM, L.mL15,isActive ? C.fcBlue : C.fcBlack]}>{item.label}</Text>
               </View>
               
-              <View style={[
-                L.aiC, L.jcC, L.bR50, L.pH10, L.pV4,L.card2,
-                { backgroundColor: isActive ? 'white' : '#E0E0E0' }
-              ]}>
-                <Text style={[
-                  F.fsOne2, F.fw6, F.ffM,
-                  isActive ? 'black' : C.fcGray
-                ]}>
-                  {item.count}
-                </Text>
+              <View style={[L.aiC, L.jcC, L.bR50, L.pH10, L.pV4,L.card2,{ backgroundColor: isActive ? 'white' : '#E0E0E0' }]}>
+                <Text style={[F.fsOne2, F.fw6, F.ffM,isActive ? 'black' : C.fcGray]}>{item.count}</Text>
               </View>
             </TouchableOpacity>
           );
@@ -111,10 +88,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
 
       {/* Footer */}
       <View style={[L.pH20, L.pV2, C.brLightest,L.mB10,L.acC,L.mL10]}>
-        <TouchableOpacity 
-          style={[L.fdR, L.aiC]}
-          onPress={() => {}}
-        >
+        <TouchableOpacity style={[L.fdR, L.aiC]}onPress={() => {}}>
           <Ionicons name="person-outline" size={20} color="#666" />
           <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mL10]}>Profile</Text>
         </TouchableOpacity>

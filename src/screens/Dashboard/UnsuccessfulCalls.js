@@ -7,6 +7,7 @@ import CallOutcomeModal from '#/components/common/CallOutcomeModal';
 import { Header, Loader } from '#/components/common';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUnsuccessfulCalls, recordCall } from './store';
+import EmptyList from '#/components/common/EmptyList';
 
 const UnsuccessfulCalls = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -49,7 +50,12 @@ const UnsuccessfulCalls = ({ navigation }) => {
   const handleSaveOutcome = async (callData) => {
     if (!pendingContact) return setShowOutcome(false);
     try {
-      await dispatch(recordCall(callData));
+      // Ensure we pass contactId, not the call record id
+      const updatedCallData = {
+        ...callData,
+        contactId: pendingContact.contact.id
+      };
+      await dispatch(recordCall(updatedCallData));
       setShowOutcome(false);
       setPendingContact(null);
       hasShownModal.current = false;
@@ -116,6 +122,7 @@ const UnsuccessfulCalls = ({ navigation }) => {
             tintColor={C.colorPrimary}
           />
         }
+        ListEmptyComponent={<EmptyList/>}
       />
 
       {/* Info Modal */}

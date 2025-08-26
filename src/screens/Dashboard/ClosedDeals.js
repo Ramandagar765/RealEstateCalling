@@ -7,6 +7,7 @@ import CallOutcomeModal from '#/components/common/CallOutcomeModal';
 import { Header, Loader } from '#/components/common';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchClosedDeals, recordCall } from './store';
+import EmptyList from '#/components/common/EmptyList';
 
 const ClosedDeals = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -49,7 +50,12 @@ const ClosedDeals = ({ navigation }) => {
   const handleSaveOutcome = async (callData) => {
     if (!pendingContact) return setShowOutcome(false);
     try {
-      await dispatch(recordCall(callData));
+      // Ensure we pass contactId, not the call record id
+      const updatedCallData = {
+        ...callData,
+        contactId: pendingContact.contact.id
+      };
+      await dispatch(recordCall(updatedCallData));
       setShowOutcome(false);
       setPendingContact(null);
       hasShownModal.current = false;
@@ -83,15 +89,11 @@ const ClosedDeals = ({ navigation }) => {
 
     return (
       <CallItem
+       hideCallButton={true}
         item={transformedItem}
         onInfoPress={() => handleInfo(item)}
         onCallPress={() => handleCall(item)}
-        hideCallButton={false}
-        onWhatsAppPress={() => {
-          const phone = item.contact.phone.replace(/\s+/g, '');
-          const whatsappUrl = `whatsapp://send?phone=${phone}`;
-          Linking.openURL(whatsappUrl);
-        }}
+        
       />
     );
   };
@@ -116,6 +118,7 @@ const ClosedDeals = ({ navigation }) => {
             tintColor={C.colorPrimary}
           />
         }
+        ListEmptyComponent={<EmptyList/>}
       />
 
       {/* Info Modal */}
@@ -131,7 +134,6 @@ const ClosedDeals = ({ navigation }) => {
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Property Type: {selectedDeal.contact.propertyType || 'N/A'}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Budget: {selectedDeal.contact.budget || 'N/A'}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Deal Closed: {new Date(selectedDeal.calledAt).toLocaleString()}</Text>
-              <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Duration: {selectedDeal.duration} seconds</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Notes: {selectedDeal.notes || 'No notes'}</Text>
             </>
           )}

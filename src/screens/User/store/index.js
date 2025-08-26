@@ -30,7 +30,7 @@ export const doLogin = createAsyncThunk('user/doLogin',async (data, { dispatch }
 export const log_out = createAsyncThunk('user/log_out', async (_, { dispatch }) => {
     dispatch(login_state({ isLoading: true, user_data: null, user_token: '' }));
     RootNavigation.navigate('Login');
-    MyToast('Logged out successfully');
+    // MyToast('Logged out successfully');
     dispatch(common_state());
 }
 );
