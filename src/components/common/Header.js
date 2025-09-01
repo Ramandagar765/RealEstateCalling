@@ -35,7 +35,7 @@ const Header = ({
                         onPress={() => navigation.openDrawer()} 
                         style={[WT(39), HT(39), L.jcC, L.aiC, L.bR10, C.bgTrans]}
                     >
-                        <Ionicons name="menu" size={24} color={C.colorPrimary} />
+                        <Ionicons name="menu" size={24} color='black' />
                     </TouchableOpacity>
                 )}
                 {ic_left && <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.goBack()} style={[WT(39),HT(39), L.jcC, L.aiC, L.bR10, C.bgGreen, ic_left_style,]}>

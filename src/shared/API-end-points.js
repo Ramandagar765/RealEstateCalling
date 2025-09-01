@@ -22,4 +22,9 @@ export const API = {
     
     // Profile
     updateProfile: `${BASE_URL}api/user/profile`,
+    lastcomment: `${BASE_URL}api/user/last-comments`,
+
+    //Team Lead
+    team_members: `${BASE_URL}api/team-lead/team-members`,
+    team_dashboard: `${BASE_URL}api/team-lead/team-member-dashboard`,
 }

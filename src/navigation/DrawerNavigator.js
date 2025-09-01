@@ -10,10 +10,14 @@ import RescheduledCalls from '#/screens/Dashboard/RescheduledCalls';
 import UnsuccessfulCalls from '#/screens/Dashboard/UnsuccessfulCalls';
 import ClosedDeals from '#/screens/Dashboard/ClosedDeals';
 import { useSelector } from 'react-redux';
+import TeamMember from '#/screens/Dashboard/TeamMember';
+import LastComment from '#/screens/Dashboard/LastComment';
 
 const Drawer = createDrawerNavigator();
 const CustomDrawerContent = ({ navigation, state }) => {
   const dashboardStats = useSelector(state => state?.dashboard?.stats || {});
+  const responseDataUser = useSelector(state => state?.user);
+
   
   const drawerItems = [
     {
@@ -48,8 +52,22 @@ const CustomDrawerContent = ({ navigation, state }) => {
       name: 'ClosedDeals',
       label: 'Closed Deals',
       icon: 'trophy-outline',
-      count: dashboardStats.closedDeals, // This might be a separate count from backend
+      count: dashboardStats.closedDeals, 
       component: ClosedDeals
+    },
+    ...(responseDataUser?.user_data?.role === 'team_lead' ? [{
+      name: 'Team Member',
+      label: 'Team Member',
+      icon: 'people-outline',
+      count: 0,
+      component: TeamMember
+    }] : []),
+    {
+      name: 'Last Comments',
+      label: 'Last Comments',
+      icon: 'chatbubble-ellipses-outline',
+      count: 0,
+      component: LastComment
     }
   ];
 
@@ -74,24 +92,12 @@ const CustomDrawerContent = ({ navigation, state }) => {
               onPress={() => navigation.navigate(item.name)}
               activeOpacity={0.7}>
               <View style={[L.fdR, L.aiC]}>
-                <Ionicons name={item.icon} size={24} color={isActive ? C.colorPrimary : '#666'} />
+                <Ionicons name={item.icon} size={24} color='black' />
                 <Text style={[F.fsOne6, F.fw5, F.ffM, L.mL15,isActive ? C.fcBlue : C.fcBlack]}>{item.label}</Text>
-              </View>
-              
-              <View style={[L.aiC, L.jcC, L.bR50, L.pH10, L.pV4,L.card2,{ backgroundColor: isActive ? 'white' : '#E0E0E0' }]}>
-                <Text style={[F.fsOne2, F.fw6, F.ffM,isActive ? 'black' : C.fcGray]}>{item.count}</Text>
               </View>
             </TouchableOpacity>
           );
         })}
-      </View>
-
-      {/* Footer */}
-      <View style={[L.pH20, L.pV2, C.brLightest,L.mB10,L.acC,L.mL10]}>
-        <TouchableOpacity style={[L.fdR, L.aiC]}onPress={() => {}}>
-          <Ionicons name="person-outline" size={20} color="#666" />
-          <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mL10]}>Profile</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -134,6 +140,16 @@ const DrawerNavigator = () => {
         name="ClosedDeals" 
         component={ClosedDeals}
         options={{ title: 'Closed Deals' }}
+      />
+       <Drawer.Screen 
+        name="Team Member" 
+        component={TeamMember}
+        options={{ title: 'Team Member' }}
+      />
+      <Drawer.Screen
+        name="Last Comments"
+        component={LastComment}
+        options={{ title: 'Last Comments' }}
       />
     </Drawer.Navigator>
   );

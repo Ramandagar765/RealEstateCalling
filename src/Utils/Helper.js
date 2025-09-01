@@ -299,7 +299,7 @@ export const responseHandler = response => {
         return 'failure';
       } else if (response.status == 403) {
         MyToast(response.data.message);
-        RootNavigation.reset('PlanDetails');
+        // RootNavigation.reset('PlanDetails');
         // store.dispatch(logout_state());
         return 'failure';
       } else if (response.status == 402) {

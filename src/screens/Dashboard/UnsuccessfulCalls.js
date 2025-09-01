@@ -138,7 +138,8 @@ const UnsuccessfulCalls = ({ navigation }) => {
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Call Date: {new Date(selectedCall.calledAt).toLocaleString()}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Duration: {selectedCall.duration} seconds</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Status: {selectedCall.status}</Text>
-              <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Notes: {selectedCall.notes || 'No notes'}</Text>
+              <Text style={[F.fsOne4, C.fcGray, F.ffM,]}>Notes:</Text>
+              {selectedCall?.contactNotes?.map((note, index) => <Text key={index} style={[F.fsOne4, C.fcGray, F.ffM, L.mB0]}>{note?.note}</Text>)}
             </>
           )}
 

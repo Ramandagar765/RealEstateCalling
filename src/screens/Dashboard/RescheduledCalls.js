@@ -136,11 +136,12 @@ const RescheduledCalls = ({ navigation }) => {
             <>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Name: {selectedCall.contact.name}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Phone: {selectedCall.contact.phone}</Text>
-              <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Email: {selectedCall.contact.email || 'N/A'}</Text>
+              <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Email: {selectedCall.contact.email || 'N/A'}</Text> 
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Last Call: {new Date(selectedCall.calledAt).toLocaleString()}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Scheduled For: {new Date(selectedCall.scheduledFor).toLocaleDateString()}</Text>
               {/* <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Duration: {selectedCall.duration} seconds</Text> */}
-              <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Notes: {selectedCall.notes || 'No notes'}</Text>
+              <Text style={[F.fsOne4, C.fcGray, F.ffM,]}>Notes:</Text>
+              {selectedCall?.contactNotes?.map((note, index) => <Text key={index} style={[F.fsOne4, C.fcGray, F.ffM, L.mB0]}>{note?.note}</Text>)}
             </>
           )}
 
@@ -152,6 +153,7 @@ const RescheduledCalls = ({ navigation }) => {
 
       {/* Call Outcome Modal */}
       <CallOutcomeModal
+      showOnlySuccessful={true}
         visible={showOutcome}
         onClose={handleCloseOutcome}
         contact={pendingContact}

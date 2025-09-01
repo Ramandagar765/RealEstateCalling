@@ -5,7 +5,7 @@
   "scripts": {
    "android": "react-native run-android",
 		"ios": "react-native run-ios --simulator='iPhone 16 Pro'",
-		"start": "react-native start --experimental-debugger",
+		"start": "react-native start",
 		"test": "jest",
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
 		"adb-all": "adb devices | tail -n +2 | cut -sf 1 | xargs -I {} adb -s {}",

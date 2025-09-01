@@ -5,14 +5,23 @@ import { useSelector,useDispatch } from 'react-redux'
 import RootNavigation from '#/navigation/RootNavigation'
 import {verify_token} from './store'
 import { Images } from '#/commonStyles/Images'
+import { hasValue } from '#/Utils'
 
 const Splash = () => {
   const dispatch = useDispatch();
   const responseDataUser = useSelector((state) => state.user);
-  console.log('responseDataUser', responseDataUser?.user_token);
   useEffect(() => {
-      dispatch(verify_token());
-  }, [])
+    const timer = setTimeout(() => {
+      if(hasValue(responseDataUser?.user_token)){
+        dispatch(verify_token());
+      } else {
+        RootNavigation.replace('Login');
+      }
+    }, 2000); 
+
+    return () => clearTimeout(timer);
+  }, [responseDataUser?.user_token])
+
 
 
   return (

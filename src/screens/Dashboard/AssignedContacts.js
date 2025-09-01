@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, FlatList, AppState, Linking, RefreshControl, Text, TouchableOpacity } from 'react-native';
-import { C, L, F } from '#/commonStyles/style-layout';
+import { C, L, F, WT } from '#/commonStyles/style-layout';
 import CallItem from '#/components/common/CallItem';
 import CallOutcomeModal from '#/components/common/CallOutcomeModal';
 import ModalRoot from '#/components/common/Modal';
 import { Header, Loader } from '#/components/common';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchContacts, fetchDashboardStats, recordCall } from './store';
+import { fetchContacts, fetchDashboardStats, recordCall, team_calls } from './store';
 import EmptyList from '#/components/common/EmptyList';
 
 const AssignedContacts = ({ navigation }) => {
@@ -24,7 +24,6 @@ const AssignedContacts = ({ navigation }) => {
     dispatch(fetchContacts({ page: 1, size: 50 }));
   }, []);
 
-  // Listen for app state changes to detect return from phone call
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
       if (appState.current.match(/inactive|background/) && nextAppState === 'active' && pendingContact && !hasShownModal.current) {
@@ -122,21 +121,21 @@ const AssignedContacts = ({ navigation }) => {
       {responseDataDashBoard?.isLoading && <Loader />}
       <View style={[L.pH20, L.pV10, C.bgLGray, L.jcC, L.aiC, L.bR10, L.mB10]}>
         <View style={[L.fdR, L.jcSB, L.w100, L.mT10]}>
-          <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5]}>
-            <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Assigned Contacts</Text>
-            <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.totalAssigned || 0}</Text>
+          <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5,WT('50%')]}>
+            <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Calls</Text>
+            <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{(responseDataDashBoard?.contacts?.filter(item => item?.callStatus === 'not_called') || []).length}</Text>
           </View>
-          <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5]}>
+          <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5,WT('50%')]}>
             <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Scheduled Calls</Text>
             <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.scheduledCalls || 0}</Text>
           </View>
         </View>
         <View style={[L.fdR, L.jcSB, L.w100, L.mT10]}>
-          <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5]}>
-            <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Unsuccessful Calls</Text>
+        <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5,WT('50%')]}>
+        <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Unsuccessful Calls</Text>
             <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.noAnswer || 0}</Text>
           </View>
-          <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5]}>
+          <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5,WT('50%')]}>
             <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Closed Deals</Text>
             <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.closedDeals || 0}</Text>
           </View>

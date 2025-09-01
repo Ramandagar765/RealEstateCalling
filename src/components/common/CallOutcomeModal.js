@@ -22,7 +22,7 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
 
   const unsuccessfulOutcomes = [
     { label: 'No Answer', value: 'no_answer' },
-    { label: 'Busy', value: 'busy' },
+    // { label: 'Busy', value: 'busy' },
     { label: 'Failed to Connect', value: 'failed' },
   ];
 
@@ -127,7 +127,7 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
                 }}
               >
                 <Text style={[F.fsOne4, F.fw5, F.ffM, callStatus === 'successful' ? C.fcBlack : C.fcGray]}>
-                  Successful
+                  Connected 
                 </Text>
               </TouchableOpacity>
               
@@ -140,7 +140,7 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
                 }}
               >
                 <Text style={[F.fsOne4, F.fw5, F.ffM, callStatus === 'unsuccessful' ? C.fcBlack : C.fcGray]}>
-                  Unsuccessful
+                  Not Connected
                 </Text>
               </TouchableOpacity>
             </View>
@@ -221,7 +221,7 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
           />
           <CustomButton
             label={getButtonLabel()}
-            style={[WT('48%'), C.bgBlue]}
+            style={[WT('48%'), C.bgBlack]}
             onPress={handleConfirm}
             txtStyle={[F.fw5, F.ffM, C.fcWhite, F.fsOne4]}
             disabled={!callStatus || !outcome}

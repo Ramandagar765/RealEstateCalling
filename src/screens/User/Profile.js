@@ -44,14 +44,14 @@ const Profile = ({ navigation }) => {
         <Text style={[L.mT10, C.fcBlack]}>Phone:</Text>
         <TextField
           label="Email"
-          value={formData?.email}
-          onChangeText={(text) => setFormData({ ...formData, email: text })}
+          value={formData?.phone}
+          onChangeText={(text) => setFormData({ ...formData, phone: text })}
           style={[L.mH20, HT(40),L.pL0]}
         />
         <View style={[L.even, L.mT20, L.jcC]}>
           <Text style={[C.fcBlack, F.fsOne5, F.ffM]}>Role:</Text>
           <View style={[WT(100)]} />
-          <Text style={[C.fcBlack, F.fsOne5, F.ffM]}>caller</Text>
+          <Text style={[C.fcBlack, F.fsOne5, F.ffM]}>{formData?.role}</Text>
         </View>
         {/* <CustomButton
           label="Update Profile"

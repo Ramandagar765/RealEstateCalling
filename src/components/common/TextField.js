@@ -40,7 +40,7 @@ const TextField = (props) => {
             props?.cntstyl, 
             L.fdR, 
             L.aiC,
-            isFocused && { borderWidth: 1, borderColor: '#582F93' }
+            isFocused && { borderWidth: 1, borderColor: '#000000' }
         ]}>
             
                 <TextInput 
