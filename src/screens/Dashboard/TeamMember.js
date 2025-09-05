@@ -35,7 +35,7 @@ const TeamMember = ({ navigation }) => {
         </View>
         <View style={[L.aiC]}>
           <Text style={[F.fsOne8, F.ffB, C.fcBlack, L.mB2]}>{stats.activeAssignments}</Text>
-          <Text style={[F.fsOne2, F.ffR, C.fcGray, L.taC]}>Active Tasks</Text>
+          <Text style={[F.fsOne2, F.ffR, C.fcGray, L.taC]}>Total Calls</Text>
         </View>
         <View style={[L.aiC]}>
           <Text style={[F.fsOne8, F.ffB, C.fcBlack, L.mB2]}>{stats.deals}</Text>

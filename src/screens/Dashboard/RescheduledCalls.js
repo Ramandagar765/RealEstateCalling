@@ -153,7 +153,6 @@ const RescheduledCalls = ({ navigation }) => {
 
       {/* Call Outcome Modal */}
       <CallOutcomeModal
-      showOnlySuccessful={true}
         visible={showOutcome}
         onClose={handleCloseOutcome}
         contact={pendingContact}

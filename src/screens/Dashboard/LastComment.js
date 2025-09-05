@@ -27,6 +27,8 @@ const LastComment = ({ navigation }) => {
             <FlatList
                 data={responseDataDashboard?.comments || []}
                 keyExtractor={(item, index) => index.toString()}
+                refreshing={responseDataDashboard?.isLoading || false}
+                onRefresh={() => dispatch(last_comment())}
                 renderItem={({ item }) => (
                     <View style={[L.p10, L.bB,L.m10,L.bR10,L.card2]}>
                         <Text style={[L.mB5,C.fcBlack]}>{item?.notes}</Text>
