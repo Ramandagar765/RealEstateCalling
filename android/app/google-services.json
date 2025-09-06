@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "402953110080",
+    "project_id": "realestatecalling-3b27b",
+    "storage_bucket": "realestatecalling-3b27b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:402953110080:android:dc4e22c9263b138ac8d5a5",
+        "android_client_info": {
+          "package_name": "com.realestatecalling"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6qjb5T3aM5zoh1yHwv2VX3pB6VczJ0b8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

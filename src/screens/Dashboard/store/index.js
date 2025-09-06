@@ -234,6 +234,25 @@ export const last_comment = createAsyncThunk('dashboard/last_comment', async (_,
     }); 
 });
 
+// Create new contact
+export const createContact = createAsyncThunk('dashboard/createContact', async (contactData, { dispatch }) => {
+    dispatch(common_state({ isLoading: true }));
+    try {
+        const res = await performPostRequest(API.contacts, contactData);
+        const apiResponse = responseHandler(res);
+        if (apiResponse?.data?.success) {
+            dispatch(fetchContacts({ page: 1, size: 20 }));
+        } 
+        MyToast(apiResponse?.data?.message ?? '');
+        dispatch(common_state());
+    } catch (error) {
+        const apiResponse = responseHandler(error.response);
+        console.log('createContact failure', apiResponse?.data?.message);
+        MyToast(apiResponse?.data?.message ?? '');
+        dispatch(common_state());
+    }
+});
+
 const dashboardSlice = createSlice({
     name: 'dashboard',
     initialState: {

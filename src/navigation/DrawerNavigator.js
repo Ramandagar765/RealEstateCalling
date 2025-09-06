@@ -12,6 +12,7 @@ import ClosedDeals from '#/screens/Dashboard/ClosedDeals';
 import { useSelector } from 'react-redux';
 import TeamMember from '#/screens/Dashboard/TeamMember';
 import LastComment from '#/screens/Dashboard/LastComment';
+import CreateContact from '#/screens/Dashboard/CreateContact';
 
 const Drawer = createDrawerNavigator();
 const CustomDrawerContent = ({ navigation, state }) => {
@@ -26,6 +27,13 @@ const CustomDrawerContent = ({ navigation, state }) => {
       icon: 'call-outline',
       count: dashboardStats.totalAssigned || 0,
       component: AssignedContacts
+    },
+    {
+      name: 'CreateContact',
+      label: 'Create Contact',
+      icon: 'add-circle-outline',
+      count: 0,
+      component: CreateContact
     },
     // {
     //   name: 'SuccessfulCalls',
@@ -121,11 +129,11 @@ const DrawerNavigator = () => {
         component={AssignedContacts}
         options={{ title: 'Assigned Contacts' }}
       />
-      {/* <Drawer.Screen 
-        name="SuccessfulCalls" 
-        component={SuccessfulCalls}
-        options={{ title: 'Successful Calls' }}
-      /> */}
+      <Drawer.Screen 
+        name="CreateContact" 
+        component={CreateContact}
+        options={{ title: 'Create Contact' }}
+      />
       <Drawer.Screen 
         name="RescheduledCalls" 
         component={RescheduledCalls}
