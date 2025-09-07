@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { last_comment } from './store';
 import { C, F, L } from '#/commonStyles/style-layout';
 import { Header } from '#/components/common';
+import { formatDate3 } from '#/Utils';
 
 const LastComment = ({ navigation }) => {
     const dispatch = useDispatch();
@@ -31,7 +32,7 @@ const LastComment = ({ navigation }) => {
                 onRefresh={() => dispatch(last_comment())}
                 renderItem={({ item }) => (
                     <View style={[L.p10, L.bB,L.m10,L.bR10,L.card2]}>
-                        <Text style={[L.mB5,C.fcBlack]}>{item?.notes}</Text>
+                        <Text style={[L.mB5,C.fcBlack]}>{item?.notes}-{formatDate3(item?.createdAt)}</Text>
                         <Text style={[F.fsOne9, C.fcBlack]}>{item?.contact?.name} - {item?.contact?.phone}</Text>
                     </View>
                 )}

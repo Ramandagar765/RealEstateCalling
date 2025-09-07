@@ -55,7 +55,7 @@ const CreateContact = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView style={[L.f1]} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
-      <Header label_center="Create New Contact" ic_left navigation={navigation} />
+      <Header label_center="Create New Contact" ic_left navigation={navigation} ic_left_style={[C.bgBlack]}/>
       {isLoading && <Loader isLoading={isLoading} />}
       <ScrollView style={[L.f1]} contentContainerStyle={[L.pV20]}showsVerticalScrollIndicator={false} >
         <View style={[WT('100%'), L.pH20]}>

@@ -8,6 +8,7 @@ import { Header, Loader } from '#/components/common';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchRescheduledCalls, recordCall } from './store';
 import EmptyList from '#/components/common/EmptyList';
+import { formatDate3 } from '#/Utils';
 
 const RescheduledCalls = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -138,8 +139,7 @@ const RescheduledCalls = ({ navigation }) => {
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Phone: {selectedCall.contact.phone}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Email: {selectedCall.contact.email || 'N/A'}</Text> 
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Last Call: {new Date(selectedCall.calledAt).toLocaleString()}</Text>
-              <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Scheduled For: {new Date(selectedCall.scheduledFor).toLocaleDateString()}</Text>
-              {/* <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Duration: {selectedCall.duration} seconds</Text> */}
+              <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Scheduled For: {formatDate3(selectedCall?.scheduledFor)}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM,]}>Notes:</Text>
               {selectedCall?.contactNotes?.map((note, index) => <Text key={index} style={[F.fsOne4, C.fcGray, F.ffM, L.mB0]}>{note?.note}</Text>)}
             </>

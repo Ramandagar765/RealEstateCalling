@@ -123,21 +123,21 @@ const AssignedContacts = ({ navigation }) => {
         <View style={[L.fdR, L.jcSB, L.w100, L.mT10]}>
           <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5,WT('50%')]}>
             <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Calls</Text>
-            <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{(responseDataDashBoard?.contacts?.filter(item => item?.callStatus === 'not_called') || []).length}</Text>
+            <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.assigned}</Text>
           </View>
           <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5,WT('50%')]}>
             <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Scheduled Calls</Text>
-            <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.scheduledCalls || 0}</Text>
+            <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.scheduled_calls || 0}</Text>
           </View>
         </View>
         <View style={[L.fdR, L.jcSB, L.w100, L.mT10]}>
         <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5,WT('50%')]}>
         <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Unsuccessful Calls</Text>
-            <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.noAnswer || 0}</Text>
+            <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.unsucessful_calls || 0}</Text>
           </View>
           <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5,WT('50%')]}>
             <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Closed Deals</Text>
-            <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.closedDeals || 0}</Text>
+            <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.closed_deals || 0}</Text>
           </View>
         </View>
       </View>

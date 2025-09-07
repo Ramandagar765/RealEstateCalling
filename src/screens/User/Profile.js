@@ -25,9 +25,10 @@ const Profile = ({ navigation }) => {
   return (
     <View style={[L.f1]}>
       <Header label_center={"Profile"} ic_left ic_left_style={[C.bgBlack]} navigation={navigation} />
-      <View style={[L.asC, WT('90%')]}>
+      <View style={[WT('100%'),L.aiC]}>
          <TextField
           label="Name"
+          label_style={[L.taL,WT('90%')]}
           value={formData?.name}
           onChangeText={(text) => setFormData({ ...formData, name: text })}
           style={[L.mH20, HT(40), WT('90%'), L.mT0, L.pL0]}
@@ -36,12 +37,14 @@ const Profile = ({ navigation }) => {
      
         <TextField
           label="Email"
+          label_style={[L.taL,WT('90%')]}
           value={formData?.email}
           onChangeText={(text) => setFormData({ ...formData, email: text })}
           style={[L.mH20, HT(40),L.pL0]}
         />
         <TextField
           label="Email"
+          label_style={[L.taL,WT('90%')]}
           value={formData?.phone}
           onChangeText={(text) => setFormData({ ...formData, phone: text })}
           style={[L.mH20, HT(40),L.pL0]}

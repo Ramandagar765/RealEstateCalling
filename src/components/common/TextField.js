@@ -38,9 +38,9 @@ const TextField = (props) => {
                 WT('90%'),
                 C.bgWhite,
                 L.bR10,
-                props?.cntstyl,
                 L.fdR,
                 L.aiC,
+                props?.cntstyl,
                 isFocused && { borderWidth: 1, borderColor: '#000000' }
             ]}>
                 <TextInput

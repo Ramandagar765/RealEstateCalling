@@ -4,12 +4,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // import notifee, {AndroidImportance} from '@notifee/react-native';
 import RootNavigation from '../navigation/RootNavigation';
 import { store } from '#/redux/store';
-
-
-// import ReactNativeBlobUtil from 'react-native-blob-util';
-
-import { Clipboard } from 'react-native';
-// import RNClipboard from '@react-native-clipboard/clipboard'
 export const formatDate2 = (date) => date?.toISOString()?.split('T')[0]
 
 export const formatDateTime = (dateString) => {
@@ -28,16 +22,7 @@ export const formatDateTime = (dateString) => {
 export const copyToClipboard = async (text) => {
   
 };
-
-// ... existing imports and functions ...
-
-/**
- * Saves base64 encoded data as a file and opens it.
- * @param {string} base64Data - The base64 encoded file data.
- * @param {string} fileName - The name to give the file (including extension).
- * @param {string} mimeType - The MIME type of the file (e.g., 'application/pdf' for PDFs).
- * @returns {Promise<string>} A promise that resolves with the path to the saved file.
- */
+ 
 export const saveAndOpenFile = async (base64Data, fileName, mimeType) => {
 
   // try {
@@ -494,9 +479,14 @@ export function formatDate3(dateString) {
   const day = date.getDate(); // Get the day of the month
   const month = date.toLocaleString('default', { month: 'short' }); // Get the abbreviated month name
   const year = date.getFullYear(); // Get the full year
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const amOrPm = hours >= 12 ? 'PM' : 'AM';
+  const formattedHours = hours % 12 || 12;
+  const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
 
   // Return the formatted date in the desired format
-  return `${day} ${month} ${year}`;
+  return `${day} ${month} ${year} ${formattedHours}:${formattedMinutes} ${amOrPm}`;
 }
 
 const formattedDate = formatDate("2025-01-06 21:28:10");
@@ -856,31 +846,15 @@ export const date_format = () => {
 }
 
 
-export const quickActions = [
-  {
-    id: 5,
-    label: 'Create invoice for new user Abc abc@example.com, items image 2000, art 3000',
-    query: 'Create invoice for new user Abc abc@example.com, items image 2000, art 3000'
-},
-  {
-      id: 1,
-      label: 'overdue invoices',
-      query: 'overdue invoices'
-  },
-  {
-      id: 2,
-      label: 'paid invoices',
-      query: 'paid invoices'
-  },
-  {
-      id: 3,
-      label: 'unpaid invoices',
-      query: 'unpaid invoices'
-  },
-  {
-      id: 4,
-      label: 'What is my last 12 months revenue',
-      query: 'What is my last 12 months revenue'
-  },
  
+
+export const successfulOutcomes = [
+  { label: 'Interested', value: 'interested' },
+  { label: 'Not Interested', value: 'not_interested' },
+  { label: 'Deal Closed', value: 'deal_closed' },
+];
+
+export const unsuccessfulOutcomes = [
+  { label: 'No Answer', value: 'no_answer' },
+  { label: 'Failed to Connect', value: 'failed' },
 ];

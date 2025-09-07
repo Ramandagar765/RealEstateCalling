@@ -6,6 +6,8 @@ import CustomTextInput from './CustomTextInput';
 import CustomButton from './Button';
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
+import TextField from './TextField';
+import { successfulOutcomes, unsuccessfulOutcomes } from '#/Utils';
 
 const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessful = false }) => {
   const [callStatus, setCallStatus] = useState(showOnlySuccessful ? 'successful' : '');
@@ -13,18 +15,9 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
   const [comment, setComment] = useState('');
   const [scheduledDate, setScheduledDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
-  const successfulOutcomes = [
-    { label: 'Interested', value: 'interested' },
-    { label: 'Not Interested', value: 'not_interested' },
-    { label: 'Deal Closed', value: 'deal_closed' },
-  ];
-
-  const unsuccessfulOutcomes = [
-    { label: 'No Answer', value: 'no_answer' },
-    // { label: 'Busy', value: 'busy' },
-    { label: 'Failed to Connect', value: 'failed' },
-  ];
+ 
 
   const getCurrentOutcomes = () => {
     return callStatus === 'successful' ? successfulOutcomes : unsuccessfulOutcomes;
@@ -69,10 +62,20 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
     setOutcome('');
     setComment('');
     setScheduledDate(new Date());
+    setShowPicker(false);
+    setShowTimePicker(false);
   };
 
   const onChangeDateIOS = (_event, selectedDate) => {
     if (selectedDate) setScheduledDate(selectedDate);
+  };
+
+  const onChangeTimeIOS = (_event, selectedTime) => {
+    if (selectedTime) {
+      const updatedDate = new Date(scheduledDate);
+      updatedDate.setHours(selectedTime.getHours(), selectedTime.getMinutes(), 0, 0);
+      setScheduledDate(updatedDate);
+    }
   };
 
   const openAndroidDateTimePicker = () => {
@@ -82,9 +85,27 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
       onChange: (event, selectedDate) => {
         if (event.type !== 'set' || !selectedDate) return;
         const pickedDate = new Date(selectedDate);
-        // Set default time to 2:00 PM
-        pickedDate.setHours(14, 0, 0, 0);
         setScheduledDate(pickedDate);
+        setTimeout(() => {
+          if (Platform.OS === 'android') {
+            openAndroidTimePicker(pickedDate);
+          } else {
+            setShowTimePicker(true);
+          }
+        }, 100);
+      },
+    });
+  };
+
+  const openAndroidTimePicker = (date) => {
+    DateTimePickerAndroid.open({
+      value: date || scheduledDate,
+      mode: 'time',
+      onChange: (event, selectedTime) => {
+        if (event.type !== 'set' || !selectedTime) return;
+        const updatedDate = new Date(date || scheduledDate);
+        updatedDate.setHours(selectedTime.getHours(), selectedTime.getMinutes(), 0, 0);
+        setScheduledDate(updatedDate);
       },
     });
   };
@@ -101,13 +122,13 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
     }
     return 'Mark Unsuccessful';
   };
- 
+
 
   return (
     <ModalRoot visible={visible} onClose={onClose} animationType="slide" style={[L.jcB]}>
       <View style={[WT('100%'), L.asC, C.bgWhite, L.bR10, L.p20]}>
         <Text style={[F.fsTwo2, F.fw7, C.fcBlack, F.ffB, L.mB10]}>Call Outcome</Text>
-        
+
         {contact && (
           <Text style={[F.fsOne6, C.fcBlack, F.ffM, L.mB15]}>
             {contact.contact?.name} • {contact.contact?.phone}
@@ -127,10 +148,10 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
                 }}
               >
                 <Text style={[F.fsOne4, F.fw5, F.ffM, callStatus === 'successful' ? C.fcBlack : C.fcGray]}>
-                  Connected 
+                  Connected
                 </Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={[WT('49%'), L.aiC, L.jcC, L.pV8, callStatus === 'unsuccessful' && C.bgWhite, L.bR8]}
                 activeOpacity={0.7}
@@ -149,10 +170,10 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
 
         {/* Outcome Dropdown - show if call status is selected */}
         {callStatus && (
-          <View style={[L.mT20,{marginBottom: -15}]}>
+          <View style={[L.mT5]}>
             <Dropdown
               style={[
-                L.pH15, L.pV12, L.bR8, 
+                L.pH15, L.pV12, L.bR8,
                 { borderWidth: 1, borderColor: '#E0E0E0', backgroundColor: '#F9F9F9' }
               ]}
               placeholderStyle={[F.fsOne4, C.fcGray, F.ffR]}
@@ -168,11 +189,12 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
           </View>
         )}
 
-        <CustomTextInput
-          placeholder="Enter your notes about this call..."
+        <TextField
+          placeholder="Enter your comments about this call..."
           value={comment}
           onChangeText={setComment}
-          style={[WT('100%'), L.br05, L.pH15, L.pV12, L.mB15, L.bR8]}
+          cntstyl={[WT('100%'), L.mV10, L.br05]}
+          style={[L.pH15, L.pV12, L.mB15,]}
           multiline
           numberOfLines={3}
         />
@@ -180,28 +202,36 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
         {/* Scheduling Section - show if needs scheduling */}
         {needsScheduling() && (
           <View style={[WT('100%'), L.mB15]}>
-            <Text style={[F.fsOne8, F.fw5, C.fcBlack, F.ffM, L.mB10]}>
-              Schedule Follow-up Call
-            </Text>
+            <Text style={[F.fsOne5, F.fw5, C.fcBlack, F.ffM]}>Schedule Follow-up Call</Text>
+
+            {/* Date Selection */}
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => (Platform.OS === 'android' ? openAndroidDateTimePicker() : setShowPicker(true))}
               style={[
-                WT('100%'), L.pH15, L.pV12, L.bR8, L.fdR, L.aiC, L.jcSB,
+                WT('100%'), L.pH15, L.pV12, L.bR8, L.fdR, L.aiC, L.jcSB, L.mB10,
                 { borderWidth: 1, borderColor: '#E0E0E0', backgroundColor: '#F9F9F9' }
               ]}
             >
-              <Text style={[F.fsOne4, C.fcBlack, F.ffM]}>
-                {scheduledDate.toLocaleDateString()}
-              </Text>
+              <Text style={[F.fsOne4, C.fcBlack, F.ffM]}>{scheduledDate.toLocaleDateString()}-{scheduledDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
             </TouchableOpacity>
 
             {Platform.OS === 'ios' && showPicker && (
               <DateTimePicker
                 value={scheduledDate}
-                mode="datetime"
-                display={Platform.OS === 'ios' ? 'compact' : 'spinner'}
+                mode="date"
+                display="compact"
                 onChange={onChangeDateIOS}
+                style={[L.mT10]}
+              />
+            )}
+
+            {Platform.OS === 'ios' && showTimePicker && (
+              <DateTimePicker
+                value={scheduledDate}
+                mode="time"
+                display="compact"
+                onChange={onChangeTimeIOS}
                 style={[L.mT10]}
               />
             )}
