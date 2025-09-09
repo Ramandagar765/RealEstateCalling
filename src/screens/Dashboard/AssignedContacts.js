@@ -81,7 +81,7 @@ const AssignedContacts = ({ navigation }) => {
 
   const handleRefresh = () => {
     dispatch(fetchDashboardStats())
-    dispatch(fetchContacts({ page: 1, size: 20 }));
+    dispatch(fetchContacts({ page: 1, size: 50 }));
   };
 
   const renderContactItem = ({ item }) => {
@@ -122,7 +122,7 @@ const AssignedContacts = ({ navigation }) => {
       <View style={[L.pH20, L.pV10, C.bgLGray, L.jcC, L.aiC, L.bR10, L.mB10]}>
         <View style={[L.fdR, L.jcSB, L.w100, L.mT10]}>
           <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5,WT('50%')]}>
-            <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Calls</Text>
+            <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Assingn Contacts</Text>
             <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.assigned}</Text>
           </View>
           <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5,WT('50%')]}>
@@ -169,7 +169,7 @@ const AssignedContacts = ({ navigation }) => {
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Name: {selectedContact.contact.name}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Phone: {selectedContact.contact.phone}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Email: {selectedContact.contact.email || 'N/A'}</Text>
-              <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Property Type: {selectedContact.contact.propertyType || 'N/A'}</Text>
+              <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Project: {selectedContact.contact.project || 'N/A'}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Budget: {selectedContact.contact.budget || 'N/A'}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Total Calls: {selectedContact.totalCalls}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Last Call: {selectedContact.latestCall ? new Date(selectedContact.latestCall.calledAt).toLocaleString() : 'Never'}</Text>

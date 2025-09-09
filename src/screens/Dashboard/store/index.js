@@ -242,6 +242,7 @@ export const createContact = createAsyncThunk('dashboard/createContact', async (
         const apiResponse = responseHandler(res);
         if (apiResponse?.data?.success) {
             dispatch(fetchContacts({ page: 1, size: 20 }));
+            RootNavigation.goBack()
         } 
         MyToast(apiResponse?.data?.message ?? '');
         dispatch(common_state());

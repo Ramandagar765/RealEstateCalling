@@ -73,7 +73,7 @@ const UnsuccessfulCalls = ({ navigation }) => {
   };
 
   const handleRefresh = () => {
-    dispatch(fetchUnsuccessfulCalls({ page: 1, size: 20 }));
+    dispatch(fetchUnsuccessfulCalls({ page: 1, size: 50 }));
   };
 
   const renderCallItem = ({ item }) => {

@@ -15,7 +15,7 @@ const CreateContact = ({ navigation }) => {
     name: '',
     phone: '',
     email: '',
-    propertyType: '',
+    project: '',
     budget: '',
     priority: 'medium',
     notes: ''
@@ -33,7 +33,7 @@ const CreateContact = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
-    if (formData?.name === '' || formData?.phone === '' || formData?.email === '' || formData?.propertyType === '' || formData?.budget === '') {
+    if (formData?.name === '' || formData?.phone === '' || formData?.email === '' || formData?.project === '' || formData?.budget === '') {
       MyToast('Please fill all the fields');
       return;
     }
@@ -43,7 +43,7 @@ const CreateContact = ({ navigation }) => {
       name: formData.name,
       phone: formData.phone,
       email: formData.email,
-      propertyType: formData.propertyType,
+      project: formData.project,
       budget: formData.budget,
       priority: formData.priority,
       notes: formData.notes
@@ -56,7 +56,7 @@ const CreateContact = ({ navigation }) => {
   return (
     <KeyboardAvoidingView style={[L.f1]} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
       <Header label_center="Create New Contact" ic_left navigation={navigation} ic_left_style={[C.bgBlack]}/>
-      {isLoading && <Loader isLoading={isLoading} />}
+      {isLoading && <Loader isLoading={isLoading} style={[C.bgTrans]}/>}
       <ScrollView style={[L.f1]} contentContainerStyle={[L.pV20]}showsVerticalScrollIndicator={false} >
         <View style={[WT('100%'), L.pH20]}>
           <TextField
@@ -96,10 +96,10 @@ const CreateContact = ({ navigation }) => {
             style={[L.mH20, HT(40), L.pL0]}
           />
           <TextField
-            label="Property Type"
-            placeholder="Enter property type"
-            value={formData.propertyType}
-            onChangeText={(text) => handleInputChange('propertyType', text)}
+            label="project"
+            placeholder="Enter project"
+            value={formData.project}
+            onChangeText={(text) => handleInputChange('project', text)}
             cntstyl={[WT('100%')]}
             style={[L.mH20, HT(40), L.pL0]}
           />

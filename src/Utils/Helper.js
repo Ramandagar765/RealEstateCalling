@@ -1,9 +1,8 @@
 import { Alert, Dimensions, Linking, Platform, ToastAndroid } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import messaging from '@react-native-firebase/messaging';
-// import notifee, {AndroidImportance} from '@notifee/react-native';
+import messaging from '@react-native-firebase/messaging';
+import notifee, {AndroidImportance} from '@notifee/react-native';
 import RootNavigation from '../navigation/RootNavigation';
-import { store } from '#/redux/store';
 export const formatDate2 = (date) => date?.toISOString()?.split('T')[0]
 
 export const formatDateTime = (dateString) => {
@@ -23,31 +22,6 @@ export const copyToClipboard = async (text) => {
   
 };
  
-export const saveAndOpenFile = async (base64Data, fileName, mimeType) => {
-
-  // try {
-  //   const { fs } = ReactNativeBlobUtil;
-  //   let downloadDir = fs?.dirs?.DownloadDir;
-  //   if (Platform.OS === 'ios') { downloadDir = fs?.dirs?.DocumentDir }
-  //   const filePath = `${downloadDir}/${fileName}`;
-  //   await fs.writeFile(filePath, base64Data, 'base64');
-  //   console.log('File saved to:', filePath);
-  //   if (Platform.OS === 'ios') {
-  //     await RNFetchBlob.ios.previewDocument(filePath);
-  //   } else {
-  //     await RNFetchBlob.android.actionViewIntent(filePath, mimeType);
-  //   }
-
-  //   return filePath;
-  // } catch (error) {
-  //   console.error('Error saving or opening file:', error);
-  //   throw error;
-  // }
-};
-
-// ... rest of the existing code ...
-
-
 
 export const isIOS = Platform.OS === 'ios'
 export const isAndroid = Platform.OS === 'android'
@@ -475,6 +449,7 @@ export const formatTime = (dateString) => {
 
 
 export function formatDate3(dateString) {
+  console.log('date string',dateString)
   const date = new Date(dateString);
   const day = date.getDate(); // Get the day of the month
   const month = date.toLocaleString('default', { month: 'short' }); // Get the abbreviated month name
@@ -603,248 +578,69 @@ export const getPosition = (event, width = 0, height = 0) => {
   return position;
 }
 
-export const upcoming_features = [
-  'AI ACCOUNTING',
-  'PROJECT MANAGEMENT WITH AI',
-  'TEAM MANAGEMENT',
-  'PROPOSAL WRITING WITH AI',
-  'PAYMENT PROCESSING',
-  'AI BUSINESS INSIGHTS',
-  'TIME TRACKING',
-]
+ 
+export const requestPermission = async () => {
+  if (Platform.OS === 'android') {
+    try {
+      const response = await notifee.requestPermission()
+      console.log('response', response)
+      return response;
+    } catch (error) {
+      console.log('error', error)
+    }
+  } else if (Platform.OS == 'ios') {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-
-
-export const getcurrency = (currency, currencies) => {
-  const currency_data = currencies?.find((item) => {
-    return item.id == currency
-  });
-  return currency_data?.icon
-}
-export const getCountryCodeFromIP = async () => {
-  try {
-    const response = await fetch('https://ipapi.co/json/');
-    const data = await response.json();
-    console.log(data);
-    return data.country_code;
-  } catch (error) {
-    console.error('Error fetching location:', error);
-    return 'IN';
-  }
-};
-
-export const mapCountryCodeToCurrency = (countryCode) => {
-  const currencyMap = {
-    US: 'USD',
-    IN: 'INR',
-    EU: 'EUR',
-    AE: 'AED',
-    GB: 'GBP',
-    CA: 'CAD',
-    KE: 'KES',
-    CH: 'CHF',
-    AU: 'AUD',
-    JP: 'JPY'
-  };
-  return currencyMap[countryCode] || 'INR';
-};
-
-export const extractNumberFromSerial = (serialString) => {
-  if (!serialString) return 0;
-  if (!isNaN(serialString)) {
-    return parseInt(serialString);
-  }
-
-  const patterns = [
-    /-(\d+)-/,           // matches -123-
-    /-(\d+)(?!.*-)/,     // matches -123 at the end
-    /^(\d+)-/,           // matches 123- at start
-    /(\d+)/              // matches any number
-  ];
-
-  for (const pattern of patterns) {
-    const matches = serialString.match(pattern);
-    if (matches) {
-      return parseInt(matches[1]);
+    if (enabled) {
+      console.log("enabled")
+      return;
+    } else {
+      console.log("disabled")
+      return;
     }
   }
-
-  return serialString;
-};
-
-
-
-export const openDoucment = async (actualFilePath) => {
-  // await new Promise(resolve => setTimeout(resolve, 500));
-  // try {
-  //   await ReactNativeBlobUtil.ios.previewDocument(actualFilePath);
-  //   console.log('PDF preview opened successfully');
-  // } catch (previewError) {
-  //   console.log('previewDocument failed:', previewError);
-  //   try {
-  //     await ReactNativeBlobUtil.ios.openDocument(actualFilePath);
-  //     console.log('PDF opened with openDocument');
-  //   } catch (openError) {
-  //     console.log('openDocument failed:', openError);
-  //     const fileExists = await ReactNativeBlobUtil.fs.exists(actualFilePath);
-  //     console.log('File exists:', fileExists);
-
-  //     if (fileExists) {
-  //       Alert.alert(
-  //         'PDF Downloaded',
-  //         `Invoice has been saved successfully.\n\nLocation: Documents/${fileName}`,
-  //         [
-  //           { text: 'OK', style: 'default' },
-  //           {
-  //             text: 'Open Files App',
-  //             onPress: () => {
-  //               // This will open iOS Files app
-  //               Linking.openURL('shareddocuments://')
-  //                 .catch(() => {
-  //                   // Fallback - try to open with file URL
-  //                   Linking.openURL(`file://${actualFilePath}`)
-  //                     .catch(err => console.log('Could not open file:', err));
-  //                 });
-  //             }
-  //           }
-  //         ]
-  //       );
-  //     } else {
-  //       throw new Error('File was not saved properly');
-  //     }
-  //   }
-  // }
 }
-
-export const configOptions = async (fileName) => {
-  // const { fs } = ReactNativeBlobUtil;
-  // let downloadConfig;
-  // let filePath;
-  // if (Platform.OS === 'ios') {
-  //   filePath = `${fs.dirs.DocumentDir}/${fileName}`;
-  //   downloadConfig = {
-  //     fileCache: true,
-  //     path: filePath,
-  //   };
-  //   return downloadConfig
-  // } else {
-  //   filePath = `/storage/emulated/0/Download/${fileName}`;
-  //   downloadConfig = {
-  //     fileCache: true,
-  //     addAndroidDownloads: {
-  //       useDownloadManager: true,
-  //       notification: true,
-  //       path: filePath,
-  //       description: 'Downloading Invoice PDF',
-  //       mime: 'application/pdf',
-  //     },
-  //   };
-  //   return downloadConfig    
-  // }
-}
-
-
-export const ErrorMessage = 'Oops Something went wrong, Please try again'
-
-/**
- * Formats date according to the selected date format from settings
- * @param {Date|string} date - The date to format (can be Date object or string)
- * @param {string} dateFormat - The date format from settings (e.g., 'Y-m-d', 'd-m-Y', etc.)
- * @returns {string} Formatted date string
- */
-export const formatDateBySettings = (date, dateFormat) => {
-  if (!date) return '';
-  
-  // Convert to Date object if it's a string
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
-  // Check if date is valid
-  if (isNaN(dateObj.getTime())) return '';
-  
-  // Get date components
-  const year = dateObj.getFullYear();
-  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-  const day = String(dateObj.getDate()).padStart(2, '0');
-  
-  // Format according to dateFormat setting
-  switch (dateFormat) {
-    case 'Y-m-d':
-      return `${year}-${month}-${day}`;
-    case 'Y.m.d':
-      return `${year}.${month}.${day}`;
-    case 'Y/m/d':
-      return `${year}/${month}/${day}`;
-    case 'd-m-Y':
-      return `${day}-${month}-${year}`;
-    case 'd.m.Y':
-      return `${day}.${month}.${year}`;
-    case 'd/m/Y':
-      return `${day}/${month}/${year}`;
-    case 'm-d-Y':
-      return `${month}-${day}-${year}`;
-    case 'm.d.Y':
-      return `${month}.${day}.${year}`;
-    case 'm/d/Y':
-      return `${month}/${day}/${year}`;
-    default:
-      // Default to Y-m-d format if no valid format is provided
-      return `${year}-${month}-${day}`;
+ 
+ 
+export const foregroundHandler = async (remoteMessage) => {
+  if (Platform.OS == 'ios') {
+    const settings = await notifee.requestPermission()
+    if (settings.authorizationStatus >= AuthorizationStatus.AUTHORIZED) {
+      await notifee.displayNotification({
+        title: remoteMessage?.notification?.title,
+        body: remoteMessage?.notification?.body,
+        ios: {
+          critical: true,
+          importance: AndroidImportance.HIGH,
+        },
+        data: remoteMessage.data
+      });
+    }
   }
-};
+  if (Platform.OS == 'android') {
+    const channelId = await notifee.createChannel({
+      id: remoteMessage?.sentTime?.toString(),
+      name: 'Testing',
+      sound: "default",
+      importance: AndroidImportance.HIGH,
+    });
 
-/**
- * Converts a date string from any format back to ISO format (YYYY-MM-DD) for backend
- * @param {string} dateString - The formatted date string
- * @param {string} dateFormat - The date format that was used to create the string
- * @returns {string} Date in ISO format (YYYY-MM-DD)
- */
-export const convertFormattedDateToISO = (dateString, dateFormat) => {
-  if (!dateString || !dateFormat) return '';
-  
-  let year, month, day;
-  
-  // Split the date string based on the separator used in the format
-  let separator = '-';
-  if (dateFormat.includes('.')) separator = '.';
-  else if (dateFormat.includes('/')) separator = '/';
-  
-  const parts = dateString.split(separator);
-  
-  if (parts.length !== 3) return '';
-  
-  // Parse according to the format
-  switch (dateFormat) {
-    case 'Y-m-d':
-    case 'Y.m.d':
-    case 'Y/m/d':
-      [year, month, day] = parts;
-      break;
-    case 'd-m-Y':
-    case 'd.m.Y':
-    case 'd/m/Y':
-      [day, month, year] = parts;
-      break;
-    case 'm-d-Y':
-    case 'm.d.Y':
-    case 'm/d/Y':
-      [month, day, year] = parts;
-      break;
-    default:
-      return '';
+    notifee.displayNotification({
+      title: remoteMessage?.notification?.title,
+      body: remoteMessage?.notification?.body,
+      android: {
+        channelId: channelId,
+        sound: "default",
+        importance: AndroidImportance.HIGH,
+        largeIcon: 'ic_launher_round',
+      },
+      data: remoteMessage.data
+    });
   }
-  
-  // Ensure proper padding
-  month = String(month).padStart(2, '0');
-  day = String(day).padStart(2, '0');
-  
-  return `${year}-${month}-${day}`;
-};
-
-
-export const date_format = () => {
-  return store?.getState()?.settings?.settings_data?.defaultSetting?.settings?.date_format;
 }
-
 
  
 

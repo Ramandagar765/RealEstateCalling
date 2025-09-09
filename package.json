@@ -41,8 +41,10 @@
     "clean_ios": "xcodebuild -workspace BillingBee.xcworkspace -scheme BillingBee -configuration Release clean"
   },
   "dependencies": {
+    "@notifee/react-native": "^9.1.8",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/datetimepicker": "^8.4.3",
+    "@react-native-community/netinfo": "^11.4.1",
     "@react-native-firebase/app": "^23.3.0",
     "@react-native-firebase/messaging": "^23.3.0",
     "@react-native/new-app-screen": "0.80.2",
@@ -53,6 +55,7 @@
     "@reduxjs/toolkit": "^2.8.2",
     "axios": "^1.11.0",
     "babel-plugin-module-resolver": "^5.0.2",
+    "moment-timezone": "^0.6.0",
     "react": "19.1.0",
     "react-native": "0.80.2",
     "react-native-element-dropdown": "^2.12.4",

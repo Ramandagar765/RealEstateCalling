@@ -6,14 +6,14 @@ import RootNavigation from '#/navigation/RootNavigation'
 import { verify_token } from './store'
 import { Images } from '#/commonStyles/Images'
 import { hasValue } from '#/Utils'
-import messaging from '@react-native-firebase/messaging';
-
+import { set_device_token } from '../User/store'
+import messaging from '@react-native-firebase/messaging'
 
 const Splash = () => {
   const dispatch = useDispatch();
   const responseDataUser = useSelector((state) => state.user);
   useEffect(() => {
-    requestUserPermission()
+    getDeviceToken();
     const timer = setTimeout(() => {
       if (hasValue(responseDataUser?.user_token)) {
         dispatch(verify_token());
@@ -25,18 +25,18 @@ const Splash = () => {
     return () => clearTimeout(timer);
   }, [responseDataUser?.user_token])
 
-  async function requestUserPermission() {
-    const authStatus = await messaging().requestPermission();
-    const enabled =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-    if (enabled) {
-      console.log('Authorization status:', authStatus);
-      const token = await messaging().getToken();
-      console.log('token', token);
+  const getDeviceToken = async () => {
+    try {
+      const fcmToken = await messaging().getToken();
+      dispatch(set_device_token({
+        device_token: fcmToken,
+      }));
+    } catch (error) {
+      console.error('Error getting device token:', error);
     }
-  }
+  };
+
 
   return (
     <View style={[L.f1, L.aiC, L.jcC, C.bgWhite]}>

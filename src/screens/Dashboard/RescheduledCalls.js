@@ -74,7 +74,7 @@ const RescheduledCalls = ({ navigation }) => {
   };
 
   const handleRefresh = () => {
-    dispatch(fetchRescheduledCalls({ page: 1, size: 20 }));
+    dispatch(fetchRescheduledCalls({ page: 1, size: 50 }));
   };
 
   const renderCallItem = ({ item }) => {

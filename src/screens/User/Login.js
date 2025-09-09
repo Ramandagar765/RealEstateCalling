@@ -15,8 +15,8 @@ const Login = ({ navigation }) => {
   const dispatch = useDispatch();
   const responseDataUser = useSelector((state) => state.user);
   const [form_data, set_formdata] = useState({
-    email: 'raman@gmail.com	',
-    password: 'caller123',
+    email: '',
+    password: '',
   });
 
   const handleData = (field) => (text) => {
@@ -34,6 +34,7 @@ const Login = ({ navigation }) => {
     dispatch(doLogin({
       email: form_data?.email,
       password: form_data?.password,
+      device_token: responseDataUser?.device_token,
     }))
   };
 

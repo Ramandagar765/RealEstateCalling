@@ -13,14 +13,14 @@ const TeamMember = ({ navigation }) => {
 
 
 
-  useEffect(()=>{
-      dispatch(team_dashboard()) 
-  },[])
+  useEffect(() => {
+    dispatch(team_dashboard())
+  }, [])
 
   useEffect(() => {
     setTeamMembers(responseDataDashBoard?.team_members_dasboard || []);
-  },[responseDataDashBoard?.team_members_dasboard])
- 
+  }, [responseDataDashBoard?.team_members_dasboard])
+
 
   const renderStatsCard = (stats) => (
     <View style={[C.bgWhite, L.bR15, L.p15, L.card2]}>
@@ -50,7 +50,7 @@ const TeamMember = ({ navigation }) => {
       {/* Header with status */}
       <View style={[L.fdR, L.jcSB, L.aiC, L.mB10]}>
         <View style={[L.fdR, L.aiC]}>
-          
+
           <View>
             <Text style={[F.fsOne6, F.ffS, C.fcBlack, L.mB2]} numberOfLines={1}>
               {member.name}
@@ -68,7 +68,7 @@ const TeamMember = ({ navigation }) => {
           </View>
         </View>
 
-      
+
       </View>
 
       {/* Contact Info */}
@@ -117,6 +117,10 @@ const TeamMember = ({ navigation }) => {
 
   const keyExtractor = (item) => item.id.toString();
 
+  const handleRefresh = () => {
+    dispatch(team_dashboard())
+  }
+
   return (
     <View style={[C.bgScreen, L.f1]}>
       <Header
@@ -132,14 +136,18 @@ const TeamMember = ({ navigation }) => {
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmptyState}
         contentContainerStyle={[L.pH15]}
-
+        onRefresh={() => dispatch(team_dashboard())}
+        refreshing={responseDataDashBoard?.isLoading || false}
+        colors={[C.colorPrimary]}
+        tintColor={C.colorPrimary}
+        progressBackgroundColor={C.colorPrimary}
         showsVerticalScrollIndicator={false}
         removeClippedSubviews={true}
         maxToRenderPerBatch={10}
         windowSize={10}
         initialNumToRender={5}
         getItemLayout={(data, index) => ({
-          length: 200, // Approximate height of each item
+          length: 200, 
           offset: 200 * index,
           index,
         })}

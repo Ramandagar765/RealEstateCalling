@@ -41,6 +41,7 @@ const usersSlice = createSlice({
         user_data: null,
         user_token: '',
         isLoading: false,
+        device_token: '',
     },
     reducers: {
         login_state: (state, action) => {
@@ -52,9 +53,12 @@ const usersSlice = createSlice({
         common_state: (state, action) => {
             state.isLoading = action?.payload?.isLoading ?? false;
         },
+        set_device_token: (state, action) => {
+            state.device_token = action?.payload?.device_token ?? '';
+        },
 
     },
 });
 
-export const { login_state, common_state } = usersSlice.actions;
+export const { login_state, common_state, set_device_token } = usersSlice.actions;
 export default usersSlice.reducer;

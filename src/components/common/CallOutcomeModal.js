@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import moment from 'moment-timezone';
+const tz = 'Asia/Kolkata';
 import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import ModalRoot from './Modal';
 import { C, F, HT, L, WT } from '#/commonStyles/style-layout';
@@ -17,7 +19,7 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
   const [showPicker, setShowPicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
- 
+
 
   const getCurrentOutcomes = () => {
     return callStatus === 'successful' ? successfulOutcomes : unsuccessfulOutcomes;
@@ -37,13 +39,15 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
       payload.outcome = outcome;
 
       if (outcome === 'interested') {
+        // console.log('scheduled date',scheduledDate)
+        console.log('scheduled date', JSON.stringify({ scheduledDate: scheduledDate.toISOString() }));
+
         payload.followUpRequired = true;
         payload.scheduledFor = scheduledDate.toISOString();
       } else if (outcome === 'deal_closed') {
-        payload.outcome = 'deal_closed'; // Backend expects 'deal_closed' for closed deals
+        payload.outcome = 'deal_closed';  
       }
     } else {
-      // Unsuccessful call - map outcome to status
       if (outcome === 'no_answer') {
         payload.status = 'no_answer';
       } else if (outcome === 'busy') {
@@ -52,7 +56,7 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
         payload.status = 'failed';
       }
     }
-
+console.log('payload',payload)
     onSave?.(payload);
     resetForm();
   };

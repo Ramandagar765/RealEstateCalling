@@ -73,7 +73,7 @@ const ClosedDeals = ({ navigation }) => {
   };
 
   const handleRefresh = () => {
-    dispatch(fetchClosedDeals({ page: 1, size: 20 }));
+    dispatch(fetchClosedDeals({ page: 1, size: 50 }));
   };
 
   const renderDealItem = ({ item }) => {
@@ -131,11 +131,11 @@ const ClosedDeals = ({ navigation }) => {
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Name: {selectedDeal.contact.name}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Phone: {selectedDeal.contact.phone}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Email: {selectedDeal.contact.email || 'N/A'}</Text>
-              <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Property Type: {selectedDeal.contact.propertyType || 'N/A'}</Text>
+              <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>project: {selectedDeal.contact.project || 'N/A'}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Budget: {selectedDeal.contact.budget || 'N/A'}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Deal Closed: {new Date(selectedDeal.calledAt).toLocaleString()}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM,]}>Notes:</Text>
-              {selectedCall?.contactNotes?.map((note, index) => <Text key={index} style={[F.fsOne4, C.fcGray, F.ffM, L.mB0]}>{note?.note}</Text>)}
+              {selectedDeal?.contactNotes?.map((note, index) => <Text key={index} style={[F.fsOne4, C.fcGray, F.ffM, L.mB0]}>{note?.note}</Text>)}
             </>
           )}
 
