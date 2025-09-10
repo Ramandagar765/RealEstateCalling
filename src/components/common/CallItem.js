@@ -10,7 +10,7 @@ import { C, F, HT, L, WT } from '#/commonStyles/style-layout';
 import { Ionicons } from '#/components/Icons';
 import ContactAvatar from './ContactAvatar';
 
-const CallItem = ({ item, onInfoPress, onCallPress, onWhatsAppPress, hideCallButton = false }) => {
+const CallItem = ({ item, onInfoPress, onCallPress, onWhatsAppPress, onUpdatePress, hideCallButton = false }) => {
   return (
     <TouchableOpacity style={[WT('100%'), L.fdR, L.aiC, L.pB10, L.asC, L.brB05, { borderColor: 'gray' }, L.pH15, L.jcC]} activeOpacity={0.7}
       onPress={() => onInfoPress?.(item)}>
@@ -32,9 +32,9 @@ const CallItem = ({ item, onInfoPress, onCallPress, onWhatsAppPress, hideCallBut
             <Ionicons name="logo-whatsapp" size={20} color="gray" />
           </TouchableOpacity>
         )}
-        <TouchableOpacity onPress={() => onInfoPress?.(item)}>
+       {onUpdatePress && <TouchableOpacity onPress={() => onUpdatePress(item)}>
           <Ionicons name="chevron-forward-circle-outline" size={26} color="gray" />
-        </TouchableOpacity>
+        </TouchableOpacity>}
       </View>
     </TouchableOpacity>
   );

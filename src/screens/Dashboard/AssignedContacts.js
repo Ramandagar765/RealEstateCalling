@@ -21,7 +21,7 @@ const AssignedContacts = ({ navigation }) => {
 
   useEffect(() => {
     dispatch(fetchDashboardStats())
-    dispatch(fetchContacts({ page: 1, size: 50 }));
+    dispatch(fetchContacts({ page: 1, size: 20 }));
   }, []);
 
   useEffect(() => {
@@ -79,9 +79,23 @@ const AssignedContacts = ({ navigation }) => {
     hasShownModal.current = false;
   };
 
+  const handleUpdateStatus = (item) => {
+    const contact = {
+      id: item.contact?.id || item.id,
+      contact: {
+        id: item.contact?.id || item.id,
+        name: item.contact?.name || item.name,
+        phone: item.contact?.phone || item.phone
+      },
+      assignmentId: item.assignmentId
+    };
+    setPendingContact(contact);
+    setShowOutcome(true);
+  };
+
   const handleRefresh = () => {
     dispatch(fetchDashboardStats())
-    dispatch(fetchContacts({ page: 1, size: 50 }));
+    dispatch(fetchContacts({ page: 1, size: 20 }));
   };
 
   const renderContactItem = ({ item }) => {
@@ -105,6 +119,7 @@ const AssignedContacts = ({ navigation }) => {
         item={transformedItem}
         onInfoPress={() => handleInfo(item)}
         onCallPress={() => handleStartCall(item)}
+        onUpdatePress={() => handleUpdateStatus(item)}
         onWhatsAppPress={() => {
           const phone = item.contact.phone.replace(/\s+/g, '');
           const whatsappUrl = `whatsapp://send?phone=${phone}`;
@@ -148,6 +163,13 @@ const AssignedContacts = ({ navigation }) => {
         keyExtractor={item => item.assignmentId?.toString() || item.contact.id?.toString()}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[L.pB20]}
+        onEndReached={() => {
+          if (responseDataDashBoard?.contactsCurrentPage
+            < responseDataDashBoard?.contactsTotalPages) {
+            dispatch(fetchContacts({ page: responseDataDashBoard?.contactsCurrentPage + 1, size: 20 }));
+          }
+        }}
+        onEndReachedThreshold={0.5}
         refreshControl={
           <RefreshControl
             refreshing={responseDataDashBoard?.isLoading || false}

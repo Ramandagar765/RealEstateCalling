@@ -43,8 +43,8 @@ const CustomDrawerContent = ({ navigation, state }) => {
     //   component: SuccessfulCalls
     // },
     {
-      name: 'RescheduledCalls',
-      label: 'Rescheduled Calls',
+      name: 'ScheduledCalls',
+      label: 'Scheduled Calls',
       icon: 'time-outline',
       count: dashboardStats.scheduledCalls || 0,
       component: RescheduledCalls
@@ -135,7 +135,7 @@ const DrawerNavigator = () => {
         options={{ title: 'Create Contact' }}
       />
       <Drawer.Screen 
-        name="RescheduledCalls" 
+        name="ScheduledCalls" 
         component={RescheduledCalls}
         options={{ title: 'Rescheduled Calls' }}
       />

@@ -72,6 +72,20 @@ const UnsuccessfulCalls = ({ navigation }) => {
     hasShownModal.current = false;
   };
 
+  const handleUpdateStatus = (item) => {
+    const contact = {
+      id: item.contact?.id || item.id,
+      contact: {
+        id: item.contact?.id || item.id,
+        name: item.contact?.name || item.name,
+        phone: item.contact?.phone || item.phone
+      },
+      assignmentId: item.assignmentId
+    };
+    setPendingContact(contact);
+    setShowOutcome(true);
+  };
+
   const handleRefresh = () => {
     dispatch(fetchUnsuccessfulCalls({ page: 1, size: 50 }));
   };
@@ -92,6 +106,7 @@ const UnsuccessfulCalls = ({ navigation }) => {
         item={transformedItem}
         onInfoPress={() => handleInfo(item)}
         onCallPress={() => handleCall(item)}
+        onUpdatePress={() => handleUpdateStatus(item)}
         hideCallButton={false}
         onWhatsAppPress={() => {
           const phone = item.contact.phone.replace(/\s+/g, '');
