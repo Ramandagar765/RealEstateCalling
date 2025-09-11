@@ -23,19 +23,27 @@ export const fetchDashboardStats = createAsyncThunk('dashboard/fetchStats', asyn
 });
 
 // Fetch assigned contacts
-export const fetchContacts = createAsyncThunk('dashboard/fetchContacts', async (params = {}, { dispatch }) => {
-    console.log('fetchContacts params', params);
+export const fetch_contacts = createAsyncThunk('dashboard/fetch_contacts', async (data, { dispatch, getState }) => {
     dispatch(common_state({ isLoading: true }));
-    const queryParams = new URLSearchParams({
-        page: params.page || 1,
-        size: params.size || 50,
-    });
-
-    await performGetRequest(`${API.contacts}?${queryParams}`).then(res => {
-        const apiResponse = responseHandler(res);
+    console.log('data',data)
+    const contacts = getState()?.dashboard?.contacts;
+    console.log('original contacts',contacts)
+    await performGetRequest(API.contacts + data?.url).then(res => {
+        const apiResponse = responseHandler(res); 
         console.log('apiResponse?.data?.data', apiResponse?.data?.data)
         if (apiResponse?.data.success) {
-            dispatch(setContacts(apiResponse?.data?.data));
+            const newContacts = apiResponse?.data?.data?.items || [];
+            let finalContacts = [];
+            if (data?.data?.page === 1) {
+                finalContacts = newContacts;
+            } else {
+                finalContacts = contacts?.length > 0 ? [...contacts, ...newContacts] : newContacts;
+            }
+            dispatch(setContacts({
+                items: finalContacts,
+                totalPages: apiResponse?.data?.data?.totalPages,
+                currentPage: data?.data?.page,
+            }));
         }
         dispatch(common_state());
     }).catch(error => {
@@ -55,11 +63,19 @@ export const fetchSuccessfulCalls = createAsyncThunk('dashboard/fetchSuccessfulC
         size: params.size || 20
     });
 
-    await performGetRequest(`${API.successfulCalls}?${queryParams}`).then(res => {
+    await performGetRequest(`${API.successfulCalls}?${params}`).then(res => {
         const apiResponse = responseHandler(res);
         console.log('successfulCalls response', apiResponse?.data?.data)
         if (apiResponse?.data.success) {
-            dispatch(setSuccessfulCalls(apiResponse?.data?.data));
+            if (params?.page === 1) {
+                dispatch(setSuccessfulCalls(apiResponse?.data?.data));
+            } else {
+                dispatch(setSuccessfulCalls({
+                    items: [...state.successfulCalls, ...apiResponse?.data?.data?.items],
+                    totalPages: apiResponse?.data?.data?.totalPages,
+                    currentPage: params?.page,
+                }));
+            }
         }
         dispatch(common_state());
     }).catch(error => {
@@ -71,19 +87,27 @@ export const fetchSuccessfulCalls = createAsyncThunk('dashboard/fetchSuccessfulC
 });
 
 // Fetch rescheduled calls
-export const fetchRescheduledCalls = createAsyncThunk('dashboard/fetchRescheduledCalls', async (params = {}, { dispatch }) => {
-    console.log('fetchRescheduledCalls params', params);
+export const fetchRescheduledCalls = createAsyncThunk('dashboard/fetchRescheduledCalls', async (data, { dispatch, getState }) => {
     dispatch(common_state({ isLoading: true }));
-    const queryParams = new URLSearchParams({
-        page: params.page || 1,
-        size: params.size || 20
-    });
-
-    await performGetRequest(`${API.rescheduledCalls}?${queryParams}`).then(res => {
-        const apiResponse = responseHandler(res);
-        console.log('rescheduledCalls response', apiResponse?.data?.data)
+    console.log('fetchRescheduledCalls data', data);
+    const rescheduledCalls = getState()?.dashboard?.rescheduledCalls;
+    console.log('original rescheduledCalls', rescheduledCalls);
+    await performGetRequest(API.rescheduledCalls + data?.url).then(res => {
+        const apiResponse = responseHandler(res); 
+        console.log('rescheduledCalls apiResponse?.data?.data', apiResponse?.data?.data);
         if (apiResponse?.data.success) {
-            dispatch(setRescheduledCalls(apiResponse?.data?.data));
+            const newRescheduledCalls = apiResponse?.data?.data?.items || [];
+            let finalRescheduledCalls = [];
+            if (data?.data?.page === 1) {
+                finalRescheduledCalls = newRescheduledCalls;
+            } else {
+                finalRescheduledCalls = rescheduledCalls?.length > 0 ? [...rescheduledCalls, ...newRescheduledCalls] : newRescheduledCalls;
+            }
+            dispatch(setRescheduledCalls({
+                items: finalRescheduledCalls,
+                totalPages: apiResponse?.data?.data?.totalPages,
+                currentPage: data?.data?.page,
+            }));
         }
         dispatch(common_state());
     }).catch(error => {
@@ -95,19 +119,27 @@ export const fetchRescheduledCalls = createAsyncThunk('dashboard/fetchReschedule
 });
 
 // Fetch unsuccessful calls
-export const fetchUnsuccessfulCalls = createAsyncThunk('dashboard/fetchUnsuccessfulCalls', async (params = {}, { dispatch }) => {
-    console.log('fetchUnsuccessfulCalls params', params);
+export const fetchUnsuccessfulCalls = createAsyncThunk('dashboard/fetchUnsuccessfulCalls', async (data, { dispatch, getState }) => {
     dispatch(common_state({ isLoading: true }));
-    const queryParams = new URLSearchParams({
-        page: params.page || 1,
-        size: params.size || 20
-    });
-
-    await performGetRequest(`${API.unsuccessfulCalls}?${queryParams}`).then(res => {
-        const apiResponse = responseHandler(res);
-        console.log('unsuccessfulCalls response', apiResponse?.data?.data)
+    console.log('fetchUnsuccessfulCalls data', data);
+    const unsuccessfulCalls = getState()?.dashboard?.unsuccessfulCalls;
+    console.log('original unsuccessfulCalls', unsuccessfulCalls);
+    await performGetRequest(API.unsuccessfulCalls + data?.url).then(res => {
+        const apiResponse = responseHandler(res); 
+        console.log('unsuccessfulCalls apiResponse?.data?.data', apiResponse?.data?.data);
         if (apiResponse?.data.success) {
-            dispatch(setUnsuccessfulCalls(apiResponse?.data?.data));
+            const newUnsuccessfulCalls = apiResponse?.data?.data?.items || [];
+            let finalUnsuccessfulCalls = [];
+            if (data?.data?.page === 1) {
+                finalUnsuccessfulCalls = newUnsuccessfulCalls;
+            } else {
+                finalUnsuccessfulCalls = unsuccessfulCalls?.length > 0 ? [...unsuccessfulCalls, ...newUnsuccessfulCalls] : newUnsuccessfulCalls;
+            }
+            dispatch(setUnsuccessfulCalls({
+                items: finalUnsuccessfulCalls,
+                totalPages: apiResponse?.data?.data?.totalPages,
+                currentPage: data?.data?.page,
+            }));
         }
         dispatch(common_state());
     }).catch(error => {
@@ -119,19 +151,27 @@ export const fetchUnsuccessfulCalls = createAsyncThunk('dashboard/fetchUnsuccess
 });
 
 // Fetch closed deals
-export const fetchClosedDeals = createAsyncThunk('dashboard/fetchClosedDeals', async (params = {}, { dispatch }) => {
-    console.log('fetchClosedDeals params', params);
+export const fetchClosedDeals = createAsyncThunk('dashboard/fetchClosedDeals', async (data, { dispatch, getState }) => {
     dispatch(common_state({ isLoading: true }));
-    const queryParams = new URLSearchParams({
-        page: params.page || 1,
-        size: params.size || 20
-    });
-
-    await performGetRequest(`${API.closedDeals}?${queryParams}`).then(res => {
-        const apiResponse = responseHandler(res);
-        console.log('closedDeals response', apiResponse?.data?.data)
+    console.log('fetchClosedDeals data', data);
+    const closedDeals = getState()?.dashboard?.closedDeals;
+    console.log('original closedDeals', closedDeals);
+    await performGetRequest(API.closedDeals + data?.url).then(res => {
+        const apiResponse = responseHandler(res); 
+        console.log('closedDeals apiResponse?.data?.data', apiResponse?.data?.data);
         if (apiResponse?.data.success) {
-            dispatch(setClosedDeals(apiResponse?.data?.data));
+            const newClosedDeals = apiResponse?.data?.data?.items || [];
+            let finalClosedDeals = [];
+            if (data?.data?.page === 1) {
+                finalClosedDeals = newClosedDeals;
+            } else {
+                finalClosedDeals = closedDeals?.length > 0 ? [...closedDeals, ...newClosedDeals] : newClosedDeals;
+            }
+            dispatch(setClosedDeals({
+                items: finalClosedDeals,
+                totalPages: apiResponse?.data?.data?.totalPages,
+                currentPage: data?.data?.page,
+            }));
         }
         dispatch(common_state());
     }).catch(error => {
@@ -153,16 +193,16 @@ export const recordCall = createAsyncThunk('dashboard/recordCall', async (data, 
         const apiResponse = responseHandler(res);
         console.log('recordCall response', apiResponse?.data?.data)
         if (apiResponse?.data.success) {
-            dispatch(fetchContacts({ page: 1, size: 20 }));
+             dispatch(fetch_contacts({ url: `?page=${1}`, data: { page: 1 } }))
             dispatch(fetchDashboardStats());
             if (data.status === 'successful') {
                 if (data.outcome === 'deal_closed') {
-                    dispatch(fetchClosedDeals({ page: 1, size: 20 }));
+                    dispatch(fetchClosedDeals({ url: `?page=${1}`, data: { page: 1 } }));
                 } else if (data.outcome === 'interested') {
-                    dispatch(fetchRescheduledCalls({ page: 1, size: 20 }));
+                    dispatch(fetchRescheduledCalls({ url: `?page=${1}`, data: { page: 1 } }));
                 }
             } else {
-                dispatch(fetchUnsuccessfulCalls({ page: 1, size: 20 }));
+                dispatch(fetchUnsuccessfulCalls({ url: `?page=${1}`, data: { page: 1 } }));
             }
 
             MyToast('Operation successful');
@@ -220,9 +260,9 @@ export const last_comment = createAsyncThunk('dashboard/last_comment', async (_,
         console.log('last_comment apiResponse?.data', apiResponse?.data)
         if (apiResponse?.data.success) {
             // Handle last comment data if needed
-            dispatch(set_last_comment({ 
+            dispatch(set_last_comment({
                 comments: apiResponse?.data?.data?.comments || [],
-                isLoading: false 
+                isLoading: false
             }));
         }
         dispatch(common_state());
@@ -231,7 +271,7 @@ export const last_comment = createAsyncThunk('dashboard/last_comment', async (_,
         const apiResponse = responseHandler(error.response);
         MyToast(apiResponse?.data?.message ?? '');
         dispatch(common_state());
-    }); 
+    });
 });
 
 // Create new contact
@@ -241,9 +281,9 @@ export const createContact = createAsyncThunk('dashboard/createContact', async (
         const res = await performPostRequest(API.contacts, contactData);
         const apiResponse = responseHandler(res);
         if (apiResponse?.data?.success) {
-            dispatch(fetchContacts({ page: 1, size: 20 }));
+            dispatch(fetch_contacts({ url: `?page=${1}`, data: { page: 1 } }))
             RootNavigation.goBack()
-        } 
+        }
         MyToast(apiResponse?.data?.message ?? '');
         dispatch(common_state());
     } catch (error) {
@@ -300,11 +340,9 @@ const dashboardSlice = createSlice({
             state.stats = action.payload || {};
         },
         setContacts: (state, action) => {
-            console.log('setContacts action.payload', action.payload);
-            const data = action.payload || {};
-            state.contacts = data.items || [];
-            state.contactsTotalPages = data.totalPages || 0;
-            state.contactsCurrentPage = data.currentPage || 1;
+            state.contacts = action?.payload?.items || [];
+            state.contactsTotalPages = action?.payload?.totalPages || 0;
+            state.contactsCurrentPage = action?.payload?.currentPage || 1;
         },
         setSuccessfulCalls: (state, action) => {
             console.log('setSuccessfulCalls action.payload', action.payload);
@@ -347,7 +385,7 @@ const dashboardSlice = createSlice({
 });
 
 export const {
-    setStats, 
+    setStats,
     setContacts,
     setSuccessfulCalls,
     setRescheduledCalls,

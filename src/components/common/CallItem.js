@@ -12,7 +12,7 @@ import ContactAvatar from './ContactAvatar';
 
 const CallItem = ({ item, onInfoPress, onCallPress, onWhatsAppPress, onUpdatePress, hideCallButton = false }) => {
   return (
-    <TouchableOpacity style={[WT('100%'), L.fdR, L.aiC, L.pB10, L.asC, L.brB05, { borderColor: 'gray' }, L.pH15, L.jcC]} activeOpacity={0.7}
+    <TouchableOpacity key={item?.id} style={[WT('100%'), L.fdR, L.aiC, L.pB10, L.asC, L.brB05, { borderColor: 'gray' }, L.pH15, L.jcC]} activeOpacity={0.7}
       onPress={() => onInfoPress?.(item)}>
       <ContactAvatar name={item?.name} size={40} style={[L.mR15, L.aiC, L.jcC, C.bgTrans, L.br03]} />
       <View style={[L.f1]}>

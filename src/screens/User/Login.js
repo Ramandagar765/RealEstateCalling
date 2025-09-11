@@ -31,13 +31,13 @@ const Login = ({ navigation }) => {
       MyToast('Please fill all fields');
       return;
     }
+
     dispatch(doLogin({
       email: form_data?.email,
       password: form_data?.password,
       device_token: responseDataUser?.device_token,
     }))
   };
-
   return (
 
     <View style={[L.f1]}>

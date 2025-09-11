@@ -15,7 +15,7 @@ const CreateContact = ({ navigation }) => {
     name: '',
     phone: '',
     email: '',
-    project: '',
+ 
     budget: '',
     priority: 'medium',
     notes: ''
@@ -33,7 +33,7 @@ const CreateContact = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
-    if (formData?.name === '' || formData?.phone === '' || formData?.email === '' || formData?.project === '' || formData?.budget === '') {
+    if (formData?.name === '' || formData?.phone === '' || formData?.email === '' || formData?.budget === '') {
       MyToast('Please fill all the fields');
       return;
     }
@@ -43,7 +43,7 @@ const CreateContact = ({ navigation }) => {
       name: formData.name,
       phone: formData.phone,
       email: formData.email,
-      project: formData.project,
+      
       budget: formData.budget,
       priority: formData.priority,
       notes: formData.notes
@@ -95,14 +95,7 @@ const CreateContact = ({ navigation }) => {
             cntstyl={[WT('100%')]}
             style={[L.mH20, HT(40), L.pL0]}
           />
-          <TextField
-            label="project"
-            placeholder="Enter project"
-            value={formData.project}
-            onChangeText={(text) => handleInputChange('project', text)}
-            cntstyl={[WT('100%')]}
-            style={[L.mH20, HT(40), L.pL0]}
-          />
+          
           <TextField
             label="Notes"
             placeholder="Additional notes (optional)"

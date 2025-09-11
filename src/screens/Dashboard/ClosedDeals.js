@@ -16,12 +16,30 @@ const ClosedDeals = ({ navigation }) => {
   const [showOutcome, setShowOutcome] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState(null);
   const [pendingContact, setPendingContact] = useState(null);
+  const [onEndReachedCalledDuringMomentum, setonEndReachedCalledDuringMomentum] = useState(false);
   const appState = useRef(AppState.currentState);
   const hasShownModal = useRef(false);
+  const [closedDeals, setClosedDeals] = useState([]);
 
   useEffect(() => {
-    dispatch(fetchClosedDeals({ page: 1, size: 20 }));
+    get_closed_deals(0);
   }, []);
+
+  useEffect(() => {
+    setClosedDeals(responseDataDashBoard?.closedDeals || []);
+  }, [responseDataDashBoard?.closedDeals]);
+
+  const get_closed_deals = (page = 0) => {
+    const page_number = page + 1;
+    let url = `?page=${page_number}`;
+    console.log('closed deals url', url);
+    dispatch(fetchClosedDeals({
+      url: url,
+      data: {
+        page: page_number
+      }
+    }));
+  };
 
   // Listen for app state changes to detect return from phone call
   useEffect(() => {
@@ -60,7 +78,7 @@ const ClosedDeals = ({ navigation }) => {
       setPendingContact(null);
       hasShownModal.current = false;
       // Refresh the closed deals list
-      dispatch(fetchClosedDeals({ page: 1, size: 20 }));
+      get_closed_deals(0);
     } catch (error) {
       console.error('Error recording call:', error);
     }
@@ -73,7 +91,7 @@ const ClosedDeals = ({ navigation }) => {
   };
 
   const handleRefresh = () => {
-    dispatch(fetchClosedDeals({ page: 1, size: 50 }));
+    get_closed_deals(0);
   };
 
   const renderDealItem = ({ item }) => {
@@ -105,20 +123,23 @@ const ClosedDeals = ({ navigation }) => {
       {responseDataDashBoard?.isLoading && <Loader />}
       
       <FlatList
-        data={responseDataDashBoard?.closedDeals || []}
+        data={closedDeals}
         renderItem={renderDealItem}
-        keyExtractor={item => item.id?.toString()}
+        keyExtractor={(item, index) => `${item?.id || index}`}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[L.pB20]}
-        refreshControl={
-          <RefreshControl
-            refreshing={responseDataDashBoard?.isLoading || false}
-            onRefresh={handleRefresh}
-            colors={[C.colorPrimary]}
-            tintColor={C.colorPrimary}
-          />
-        }
-        ListEmptyComponent={<EmptyList/>}
+        onEndReached={() => {
+          if (onEndReachedCalledDuringMomentum) return;
+          if (responseDataDashBoard?.closedDealsCurrentPage < responseDataDashBoard?.closedDealsTotalPages) {
+            get_closed_deals(responseDataDashBoard?.closedDealsCurrentPage);
+            setonEndReachedCalledDuringMomentum(true);
+          }
+        }}
+        onMomentumScrollBegin={() => { setonEndReachedCalledDuringMomentum(false) }}
+        refreshing={false}
+        onEndReachedThreshold={0.05}
+        onRefresh={() => get_closed_deals(0)}
+        ListEmptyComponent={() => !responseDataDashBoard?.isLoading && <EmptyList />}
       />
 
       {/* Info Modal */}
@@ -131,7 +152,6 @@ const ClosedDeals = ({ navigation }) => {
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Name: {selectedDeal.contact.name}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Phone: {selectedDeal.contact.phone}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Email: {selectedDeal.contact.email || 'N/A'}</Text>
-              <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>project: {selectedDeal.contact.project || 'N/A'}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Budget: {selectedDeal.contact.budget || 'N/A'}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Deal Closed: {new Date(selectedDeal.calledAt).toLocaleString()}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM,]}>Notes:</Text>

@@ -6,7 +6,7 @@ import CallOutcomeModal from '#/components/common/CallOutcomeModal';
 import ModalRoot from '#/components/common/Modal';
 import { Header, Loader } from '#/components/common';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchContacts, fetchDashboardStats, recordCall, team_calls } from './store';
+import { fetch_contacts, fetchDashboardStats, recordCall, team_calls } from './store';
 import EmptyList from '#/components/common/EmptyList';
 
 const AssignedContacts = ({ navigation }) => {
@@ -16,13 +16,33 @@ const AssignedContacts = ({ navigation }) => {
   const [pendingContact, setPendingContact] = useState(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [selectedContact, setSelectedContact] = useState(null);
+  const [onEndReachedCalledDuringMomentum, setonEndReachedCalledDuringMomentum] = useState(false);
   const appState = useRef(AppState.currentState);
   const hasShownModal = useRef(false);
+  const [contacts,set_contacts] = useState([])
 
   useEffect(() => {
     dispatch(fetchDashboardStats())
-    dispatch(fetchContacts({ page: 1, size: 20 }));
-  }, []);
+    get_contacts(0);
+  }, [dispatch]);
+
+  useEffect(() => {
+    set_contacts(responseDataDashBoard?.contacts || [])
+}, [responseDataDashBoard?.contacts])
+
+
+  const get_contacts = (page = 0) => {
+    const page_number = page + 1
+    let url = `?page=${page_number}`;
+    console.log('url',url)
+    dispatch(fetch_contacts({
+      url: url,
+      data: {
+        page: page_number
+      }
+    }));
+  }
+
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
@@ -43,17 +63,17 @@ const AssignedContacts = ({ navigation }) => {
 
   const handleStartCall = (item) => {
     const contact = {
-      id: item.contact.id,
+      id: item?.contact?.id,
       contact: {
         id: item?.contact.id,
-        name: item?.contact.name,
-        phone: item?.contact.phone
+        name: item?.contact?.name,
+        phone: item?.contact?.phone
       },
-      assignmentId: item.assignmentId
+      assignmentId: item?.assignmentId
     };
     setPendingContact(contact);
     hasShownModal.current = false;
-    Linking.openURL(`tel:${contact.contact.phone}`);
+    Linking.openURL(`tel:${contact?.contact?.phone}`);
   };
 
   const handleSaveOutcome = async (callData) => {
@@ -93,25 +113,21 @@ const AssignedContacts = ({ navigation }) => {
     setShowOutcome(true);
   };
 
-  const handleRefresh = () => {
-    dispatch(fetchDashboardStats())
-    dispatch(fetchContacts({ page: 1, size: 20 }));
-  };
-
-  const renderContactItem = ({ item }) => {
+ 
+  const renderContactItem = ({ item,index }) => {
     const transformedItem = {
-      id: item.contact.id,
-      name: item.contact.name,
-      phone: item.contact.phone,
-      lastCallTime: item.latestCall ?
+      id: item?.contact?.id,
+      name: item?.contact?.name,
+      phone: item?.contact.phone,
+      lastCallTime: item?.latestCall ?
         new Date(item.latestCall.calledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         : 'Never',
-      callCount: item.totalCalls,
-      status: item.latestCall?.status || 'pending',
-      notes: item.contact.notes || item.latestCall?.notes
+      callCount: item?.totalCalls,
+      status: item?.latestCall?.status || 'pending',
+      notes: item?.contact.notes || item?.latestCall?.notes
     };
-    if(item?.callStatus !== 'not_called') {
-      return; 
+    if (item?.callStatus !== 'not_called') {
+      return;
     }
 
     return (
@@ -121,7 +137,7 @@ const AssignedContacts = ({ navigation }) => {
         onCallPress={() => handleStartCall(item)}
         onUpdatePress={() => handleUpdateStatus(item)}
         onWhatsAppPress={() => {
-          const phone = item.contact.phone.replace(/\s+/g, '');
+          const phone = item?.contact.phone.replace(/\s+/g, '');
           const whatsappUrl = `whatsapp://send?phone=${phone}`;
           Linking.openURL(whatsappUrl);
         }}
@@ -136,49 +152,48 @@ const AssignedContacts = ({ navigation }) => {
       {responseDataDashBoard?.isLoading && <Loader />}
       <View style={[L.pH20, L.pV10, C.bgLGray, L.jcC, L.aiC, L.bR10, L.mB10]}>
         <View style={[L.fdR, L.jcSB, L.w100, L.mT10]}>
-          <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5,WT('50%')]}>
-            <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Assingn Contacts</Text>
+          <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5, WT('50%')]}>
+            <Text style={[F.fsOne5, F.fw6, F.ffM, C.fcBlack, L.taC]}>Assigned Contacts</Text>
             <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.assigned}</Text>
           </View>
-          <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5,WT('50%')]}>
+          <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5, WT('50%')]}>
             <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Scheduled Calls</Text>
             <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.scheduled_calls || 0}</Text>
           </View>
         </View>
         <View style={[L.fdR, L.jcSB, L.w100, L.mT10]}>
-        <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5,WT('50%')]}>
-        <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Unsuccessful Calls</Text>
+          <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5, WT('50%')]}>
+            <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Unsuccessful Calls</Text>
             <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.unsucessful_calls || 0}</Text>
           </View>
-          <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5,WT('50%')]}>
+          <View style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5, WT('50%')]}>
             <Text style={[F.fsOne6, F.fw6, F.ffM, C.fcBlack]}>Closed Deals</Text>
             <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseDataDashBoard?.stats?.closed_deals || 0}</Text>
           </View>
         </View>
       </View>
-      
+
       <FlatList
-        data={responseDataDashBoard?.contacts || []}
+        data={contacts}
         renderItem={renderContactItem}
-        keyExtractor={item => item.assignmentId?.toString() || item.contact.id?.toString()}
+        keyExtractor={(item, index) => `${item?.assignmentId || item?.contact?.id || index}`}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[L.pB20]}
         onEndReached={() => {
-          if (responseDataDashBoard?.contactsCurrentPage
-            < responseDataDashBoard?.contactsTotalPages) {
-            dispatch(fetchContacts({ page: responseDataDashBoard?.contactsCurrentPage + 1, size: 20 }));
+          if (onEndReachedCalledDuringMomentum) return;
+          if (responseDataDashBoard?.contactsCurrentPage < responseDataDashBoard?.contactsTotalPages) {
+            get_contacts(responseDataDashBoard?.contactsCurrentPage);
+            setonEndReachedCalledDuringMomentum(true)
           }
         }}
-        onEndReachedThreshold={0.5}
-        refreshControl={
-          <RefreshControl
-            refreshing={responseDataDashBoard?.isLoading || false}
-            onRefresh={handleRefresh}
-            colors={[C.colorPrimary]}
-            tintColor={C.colorPrimary}
-          />
-        }
-        ListEmptyComponent={()=>!responseDataDashBoard?.isLoading && <EmptyList/>}
+        onMomentumScrollBegin={() => { setonEndReachedCalledDuringMomentum(false) }}
+        refreshing={false}
+        onEndReachedThreshold={0.05}
+        onRefresh={()=>{
+          dispatch(fetchDashboardStats())
+          get_contacts(0)
+        }}
+        ListEmptyComponent={() => !responseDataDashBoard?.isLoading && <EmptyList />}
       />
 
       {/* Info Modal */}
@@ -191,7 +206,6 @@ const AssignedContacts = ({ navigation }) => {
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Name: {selectedContact.contact.name}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Phone: {selectedContact.contact.phone}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Email: {selectedContact.contact.email || 'N/A'}</Text>
-              <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Project: {selectedContact.contact.project || 'N/A'}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Budget: {selectedContact.contact.budget || 'N/A'}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Total Calls: {selectedContact.totalCalls}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Last Call: {selectedContact.latestCall ? new Date(selectedContact.latestCall.calledAt).toLocaleString() : 'Never'}</Text>

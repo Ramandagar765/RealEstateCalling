@@ -52,7 +52,7 @@ const Profile = ({ navigation }) => {
         <View style={[L.even, L.mT20, L.jcC]}>
           <Text style={[C.fcBlack, F.fsOne5, F.ffM]}>Role:</Text>
           <View style={[WT(100)]} />
-          <Text style={[C.fcBlack, F.fsOne5, F.ffM]}>{formData?.role}</Text>
+          <Text style={[C.fcBlack, F.fsOne5, F.ffM]}>{formData?.role==='caller' ? 'Team Member' : 'Team Lead'}</Text>
         </View>
         {/* <CustomButton
           label="Update Profile"

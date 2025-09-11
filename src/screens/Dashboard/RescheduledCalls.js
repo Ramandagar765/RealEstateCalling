@@ -17,12 +17,30 @@ const RescheduledCalls = ({ navigation }) => {
   const [showOutcome, setShowOutcome] = useState(false);
   const [selectedCall, setSelectedCall] = useState(null);
   const [pendingContact, setPendingContact] = useState(null);
+  const [onEndReachedCalledDuringMomentum, setonEndReachedCalledDuringMomentum] = useState(false);
   const appState = useRef(AppState.currentState);
   const hasShownModal = useRef(false);
+  const [rescheduledCalls, setRescheduledCalls] = useState([]);
 
   useEffect(() => {
-    dispatch(fetchRescheduledCalls({ page: 1, size: 20 }));
+    get_rescheduled_calls(0);
   }, []);
+
+  useEffect(() => {
+    setRescheduledCalls(responseDataDashBoard?.rescheduledCalls || []);
+  }, [responseDataDashBoard?.rescheduledCalls]);
+
+  const get_rescheduled_calls = (page = 0) => {
+    const page_number = page + 1;
+    let url = `?page=${page_number}`;
+    console.log('rescheduled calls url', url);
+    dispatch(fetchRescheduledCalls({
+      url: url,
+      data: {
+        page: page_number
+      }
+    }));
+  };
 
   // Listen for app state changes to detect return from phone call
   useEffect(() => {
@@ -61,7 +79,7 @@ const RescheduledCalls = ({ navigation }) => {
       setPendingContact(null);
       hasShownModal.current = false;
       // Refresh the rescheduled calls list
-      dispatch(fetchRescheduledCalls({ page: 1, size: 20 }));
+      get_rescheduled_calls(0);
     } catch (error) {
       console.error('Error recording call:', error);
     }
@@ -88,7 +106,7 @@ const RescheduledCalls = ({ navigation }) => {
   };
 
   const handleRefresh = () => {
-    dispatch(fetchRescheduledCalls({ page: 1, size: 50 }));
+    get_rescheduled_calls(0);
   };
 
   const renderCallItem = ({ item }) => {
@@ -127,20 +145,23 @@ const RescheduledCalls = ({ navigation }) => {
       {responseDataDashBoard?.isLoading && <Loader />}
       
       <FlatList
-        data={responseDataDashBoard?.rescheduledCalls || []}
+        data={rescheduledCalls}
         renderItem={renderCallItem}
-        keyExtractor={item => item.id?.toString()}
+        keyExtractor={(item, index) => `${item?.id || index}`}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[L.pB20]}
-        refreshControl={
-          <RefreshControl
-            refreshing={responseDataDashBoard?.isLoading || false}
-            onRefresh={handleRefresh}
-            colors={[C.colorPrimary]}
-            tintColor={C.colorPrimary}
-          />
-        }
-        ListEmptyComponent={<EmptyList/>}
+        onEndReached={() => {
+          if (onEndReachedCalledDuringMomentum) return;
+          if (responseDataDashBoard?.rescheduledCallsCurrentPage < responseDataDashBoard?.rescheduledCallsTotalPages) {
+            get_rescheduled_calls(responseDataDashBoard?.rescheduledCallsCurrentPage);
+            setonEndReachedCalledDuringMomentum(true);
+          }
+        }}
+        onMomentumScrollBegin={() => { setonEndReachedCalledDuringMomentum(false) }}
+        refreshing={false}
+        onEndReachedThreshold={0.05}
+        onRefresh={() => get_rescheduled_calls(0)}
+        ListEmptyComponent={() => !responseDataDashBoard?.isLoading && <EmptyList />}
       />
 
       {/* Info Modal */}

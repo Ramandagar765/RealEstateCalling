@@ -6,7 +6,7 @@ import ModalRoot from '#/components/common/Modal';
 import CallOutcomeModal from '#/components/common/CallOutcomeModal';
 import { Header, Loader } from '#/components/common';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUnsuccessfulCalls, recordCall } from './store';
+import { fetchDashboardStats, fetchUnsuccessfulCalls, recordCall } from './store';
 import EmptyList from '#/components/common/EmptyList';
 
 const UnsuccessfulCalls = ({ navigation }) => {
@@ -16,12 +16,30 @@ const UnsuccessfulCalls = ({ navigation }) => {
   const [showOutcome, setShowOutcome] = useState(false);
   const [selectedCall, setSelectedCall] = useState(null);
   const [pendingContact, setPendingContact] = useState(null);
+  const [onEndReachedCalledDuringMomentum, setonEndReachedCalledDuringMomentum] = useState(false);
   const appState = useRef(AppState.currentState);
   const hasShownModal = useRef(false);
+  const [unsuccessfulCalls, setUnsuccessfulCalls] = useState([]);
 
   useEffect(() => {
-    dispatch(fetchUnsuccessfulCalls({ page: 1, size: 20 }));
+    get_unsuccessful_calls(0);
   }, []);
+
+  useEffect(() => {
+    setUnsuccessfulCalls(responseDataDashBoard?.unsuccessfulCalls || []);
+  }, [responseDataDashBoard?.unsuccessfulCalls]);
+
+  const get_unsuccessful_calls = (page = 0) => {
+    const page_number = page + 1;
+    let url = `?page=${page_number}`;
+    console.log('unsuccessful calls url', url);
+    dispatch(fetchUnsuccessfulCalls({
+      url: url,
+      data: {
+        page: page_number
+      }
+    }));
+  };
 
   // Listen for app state changes to detect return from phone call
   useEffect(() => {
@@ -60,7 +78,7 @@ const UnsuccessfulCalls = ({ navigation }) => {
       setPendingContact(null);
       hasShownModal.current = false;
       // Refresh the unsuccessful calls list
-      dispatch(fetchUnsuccessfulCalls({ page: 1, size: 20 }));
+      get_unsuccessful_calls(0);
     } catch (error) {
       console.error('Error recording call:', error);
     }
@@ -85,10 +103,7 @@ const UnsuccessfulCalls = ({ navigation }) => {
     setPendingContact(contact);
     setShowOutcome(true);
   };
-
-  const handleRefresh = () => {
-    dispatch(fetchUnsuccessfulCalls({ page: 1, size: 50 }));
-  };
+ 
 
   const renderCallItem = ({ item }) => {
     const transformedItem = {
@@ -124,20 +139,26 @@ const UnsuccessfulCalls = ({ navigation }) => {
       {responseDataDashBoard?.isLoading && <Loader />}
       
       <FlatList
-        data={responseDataDashBoard?.unsuccessfulCalls || []}
+        data={unsuccessfulCalls}
         renderItem={renderCallItem}
-        keyExtractor={item => item.id?.toString()}
+        keyExtractor={(item, index) => `${item?.id || index}`}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[L.pB20]}
-        refreshControl={
-          <RefreshControl
-            refreshing={responseDataDashBoard?.isLoading || false}
-            onRefresh={handleRefresh}
-            colors={[C.colorPrimary]}
-            tintColor={C.colorPrimary}
-          />
-        }
-        ListEmptyComponent={<EmptyList/>}
+        onEndReached={() => {
+          if (onEndReachedCalledDuringMomentum) return;
+          if (responseDataDashBoard?.unsuccessfulCallsCurrentPage < responseDataDashBoard?.unsuccessfulCallsTotalPages) {
+            get_unsuccessful_calls(responseDataDashBoard?.unsuccessfulCallsCurrentPage);
+            setonEndReachedCalledDuringMomentum(true);
+          }
+        }}
+        onMomentumScrollBegin={() => { setonEndReachedCalledDuringMomentum(false) }}
+        refreshing={false}
+        onEndReachedThreshold={0.08}
+        onRefresh={() => {
+          dispatch(fetchDashboardStats())
+          get_unsuccessful_calls(0)
+        }}
+        ListEmptyComponent={() => !responseDataDashBoard?.isLoading && <EmptyList />}
       />
 
       {/* Info Modal */}
@@ -170,7 +191,6 @@ const UnsuccessfulCalls = ({ navigation }) => {
         onClose={handleCloseOutcome}
         contact={pendingContact}
         onSave={handleSaveOutcome}
-        showOnlySuccessful={true}
       />
     </View>
   );

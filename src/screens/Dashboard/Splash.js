@@ -13,7 +13,7 @@ const Splash = () => {
   const dispatch = useDispatch();
   const responseDataUser = useSelector((state) => state.user);
   useEffect(() => {
-    getDeviceToken();
+    // getDeviceToken();
     const timer = setTimeout(() => {
       if (hasValue(responseDataUser?.user_token)) {
         dispatch(verify_token());
