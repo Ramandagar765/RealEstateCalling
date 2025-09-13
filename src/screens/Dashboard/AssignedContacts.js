@@ -6,7 +6,7 @@ import CallOutcomeModal from '#/components/common/CallOutcomeModal';
 import ModalRoot from '#/components/common/Modal';
 import { Header, Loader } from '#/components/common';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetch_contacts, fetchDashboardStats, recordCall, team_calls } from './store';
+import { fetch_contacts, fetchDashboardStats, fetchProjects, recordCall, team_calls } from './store';
 import EmptyList from '#/components/common/EmptyList';
 
 const AssignedContacts = ({ navigation }) => {
@@ -22,6 +22,7 @@ const AssignedContacts = ({ navigation }) => {
   const [contacts,set_contacts] = useState([])
 
   useEffect(() => {
+    dispatch(fetchProjects());
     dispatch(fetchDashboardStats())
     get_contacts(0);
   }, [dispatch]);

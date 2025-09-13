@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import moment from 'moment-timezone';
 const tz = 'Asia/Kolkata';
 import { View, Text, TouchableOpacity, Platform } from 'react-native';
@@ -10,16 +10,27 @@ import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/d
 import { Dropdown } from 'react-native-element-dropdown';
 import TextField from './TextField';
 import { successfulOutcomes, unsuccessfulOutcomes } from '#/Utils';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchProjects } from '#/screens/Dashboard/store';
 
 const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessful = false }) => {
+  const dispatch = useDispatch();
+  const projects = useSelector(state => state?.dashboard?.projects);
+  
   const [callStatus, setCallStatus] = useState(showOnlySuccessful ? 'successful' : '');
   const [outcome, setOutcome] = useState('');
   const [comment, setComment] = useState('');
   const [scheduledDate, setScheduledDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [selectedProject, setSelectedProject] = useState('');
 
-
+  // Fetch projects when modal opens
+  useEffect(() => {
+    if (visible && projects.length === 0) {
+      dispatch(fetchProjects());
+    }
+  }, [visible, dispatch, projects.length]);
 
   const getCurrentOutcomes = () => {
     return callStatus === 'successful' ? successfulOutcomes : unsuccessfulOutcomes;
@@ -27,6 +38,12 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
 
   const handleConfirm = () => {
     if (!contact || !callStatus || !outcome) return onClose?.();
+
+    // Check if project selection is required
+    if (callStatus === 'successful' && (outcome === 'interested' || outcome === 'deal_closed') && !selectedProject) {
+      alert('Please select a project');
+      return;
+    }
 
     let payload = {
       contactId: contact.id,
@@ -39,13 +56,13 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
       payload.outcome = outcome;
 
       if (outcome === 'interested') {
-        // console.log('scheduled date',scheduledDate)
         console.log('scheduled date', JSON.stringify({ scheduledDate: scheduledDate.toISOString() }));
-
         payload.followUpRequired = true;
         payload.scheduledFor = scheduledDate.toISOString();
+        payload.projectId = selectedProject;
       } else if (outcome === 'deal_closed') {
-        payload.outcome = 'deal_closed';  
+        payload.outcome = 'deal_closed';
+        payload.projectId = selectedProject;
       }
     } else {
       if (outcome === 'no_answer') {
@@ -56,7 +73,7 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
         payload.status = 'failed';
       }
     }
-console.log('payload',payload)
+    console.log('payload', payload);
     onSave?.(payload);
     resetForm();
   };
@@ -68,6 +85,7 @@ console.log('payload',payload)
     setScheduledDate(new Date());
     setShowPicker(false);
     setShowTimePicker(false);
+    setSelectedProject('');
   };
 
   const onChangeDateIOS = (_event, selectedDate) => {
@@ -116,6 +134,10 @@ console.log('payload',payload)
 
   const needsScheduling = () => {
     return callStatus === 'successful' && outcome === 'interested';
+  };
+
+  const needsProjectSelection = () => {
+    return callStatus === 'successful' && (outcome === 'interested' || outcome === 'deal_closed');
   };
 
   const getButtonLabel = () => {
@@ -202,6 +224,28 @@ console.log('payload',payload)
           multiline
           numberOfLines={3}
         />
+
+        {/* Project Selection Section - show if needs project selection */}
+        {needsProjectSelection() && (
+          <View style={[WT('100%'), L.mB15]}>
+            <Text style={[F.fsOne5, F.fw5, C.fcBlack, F.ffM, L.mB10]}>Select Project</Text>
+            <Dropdown
+              style={[
+                L.pH15, L.pV12, L.bR8,
+                { borderWidth: 1, borderColor: '#E0E0E0', backgroundColor: '#F9F9F9' }
+              ]}
+              placeholderStyle={[F.fsOne4, C.fcGray, F.ffR]}
+              selectedTextStyle={[F.fsOne4, C.fcBlack, F.ffM]}
+              data={projects.map(project => ({ label: project.name, value: project.id }))}
+              maxHeight={200}
+              labelField="label"
+              valueField="value"
+              placeholder="Select a project"
+              value={selectedProject}
+              onChange={(item) => setSelectedProject(item.value)}
+            />
+          </View>
+        )}
 
         {/* Scheduling Section - show if needs scheduling */}
         {needsScheduling() && (
