@@ -9,14 +9,14 @@ import CustomButton from './Button';
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
 import TextField from './TextField';
-import { successfulOutcomes, unsuccessfulOutcomes } from '#/Utils';
+import { MyToast, successfulOutcomes, unsuccessfulOutcomes } from '#/Utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProjects } from '#/screens/Dashboard/store';
 
 const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessful = false }) => {
   const dispatch = useDispatch();
   const projects = useSelector(state => state?.dashboard?.projects);
-  
+
   const [callStatus, setCallStatus] = useState(showOnlySuccessful ? 'successful' : '');
   const [outcome, setOutcome] = useState('');
   const [comment, setComment] = useState('');
@@ -37,11 +37,23 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
   };
 
   const handleConfirm = () => {
-    if (!contact || !callStatus || !outcome) return onClose?.();
+    console.log('contact',contact)
+    console.log('callStatus',callStatus)
+    console.log('outcome',outcome)
+    console.log('selectedProject',selectedProject)
+    console.log('comment',comment)
+    console.log('scheduledDate',scheduledDate)
+    if (!contact || !callStatus || !outcome) {
+      MyToast('Please Choose a reason')
+      return onClose?.();
+    }
 
-    // Check if project selection is required
     if (callStatus === 'successful' && (outcome === 'interested' || outcome === 'deal_closed') && !selectedProject) {
-      alert('Please select a project');
+      MyToast('Please select  project');
+      return;
+    }
+    if (!comment) {
+      MyToast('Please enter Comments about this call')
       return;
     }
 
@@ -88,8 +100,18 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
     setSelectedProject('');
   };
 
+  const openIOSDateTimePicker = () => {
+    setShowPicker(!showPicker);
+  };
+
   const onChangeDateIOS = (_event, selectedDate) => {
-    if (selectedDate) setScheduledDate(selectedDate);
+    if (selectedDate) {
+      setScheduledDate(selectedDate);
+      setShowPicker(false);
+      setTimeout(() => {
+        setShowTimePicker(true);
+      }, 100);
+    }
   };
 
   const onChangeTimeIOS = (_event, selectedTime) => {
@@ -97,6 +119,7 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
       const updatedDate = new Date(scheduledDate);
       updatedDate.setHours(selectedTime.getHours(), selectedTime.getMinutes(), 0, 0);
       setScheduledDate(updatedDate);
+      setShowTimePicker(false);
     }
   };
 
@@ -255,7 +278,7 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
             {/* Date Selection */}
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={() => (Platform.OS === 'android' ? openAndroidDateTimePicker() : setShowPicker(true))}
+              onPress={() => (Platform.OS === 'android' ? openAndroidDateTimePicker() : openIOSDateTimePicker())}
               style={[
                 WT('100%'), L.pH15, L.pV12, L.bR8, L.fdR, L.aiC, L.jcSB, L.mB10,
                 { borderWidth: 1, borderColor: '#E0E0E0', backgroundColor: '#F9F9F9' }
@@ -264,23 +287,21 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
               <Text style={[F.fsOne4, C.fcBlack, F.ffM]}>{scheduledDate.toLocaleDateString()}-{scheduledDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
             </TouchableOpacity>
 
-            {Platform.OS === 'ios' && showPicker && (
+            {showPicker && Platform.OS === 'ios' && (
               <DateTimePicker
                 value={scheduledDate}
                 mode="date"
-                display="compact"
+                display="inline"
                 onChange={onChangeDateIOS}
-                style={[L.mT10]}
               />
             )}
 
-            {Platform.OS === 'ios' && showTimePicker && (
+            {showTimePicker && Platform.OS === 'ios' && (
               <DateTimePicker
                 value={scheduledDate}
                 mode="time"
-                display="compact"
+                display="spinner"
                 onChange={onChangeTimeIOS}
-                style={[L.mT10]}
               />
             )}
           </View>
@@ -299,9 +320,9 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
           />
           <CustomButton
             label={getButtonLabel()}
-            style={[WT('48%'), C.bgBlack]}
+            style={[WT('48%'), C.bgBlack,(!callStatus || !outcome || !comment) && C.bgOffGray]}
             onPress={handleConfirm}
-            txtStyle={[F.fw5, F.ffM, C.fcWhite, F.fsOne4]}
+            txtStyle={[F.fw5, F.ffM, C.fcWhite, F.fsOne4,]}
             disabled={!callStatus || !outcome}
           />
         </View>

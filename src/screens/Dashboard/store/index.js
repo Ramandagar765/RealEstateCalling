@@ -223,7 +223,7 @@ export const verify_token = createAsyncThunk('auth/verify_token', async (_, { di
         const apiResponse = responseHandler(res);
         console.log('verifyToken apiResponse?.data', apiResponse?.data)
         if (apiResponse?.data.success) {
-            RootNavigation.navigate('DashBoard');
+            RootNavigation.reset('DashBoard');
         } else {
             dispatch(common_state());
             dispatch(log_out());
@@ -396,7 +396,7 @@ const dashboardSlice = createSlice({
       state.closedDealsCurrentPage = data.currentPage || 1;
     },
         set_team_dashboard: (state, action) => {
-            state.team_members_dasboard = action.payload || null;
+            state.team_members_dasboard = action?.payload || null;
             state.isLoading = false;
         },
         set_last_comment: (state, action) => {

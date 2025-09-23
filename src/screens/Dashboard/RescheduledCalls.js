@@ -8,7 +8,7 @@ import { Header, Loader } from '#/components/common';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchRescheduledCalls, recordCall } from './store';
 import EmptyList from '#/components/common/EmptyList';
-import { formatDate3 } from '#/Utils';
+import { formatDate3, hasValue } from '#/Utils';
 
 const RescheduledCalls = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -119,7 +119,8 @@ const RescheduledCalls = ({ navigation }) => {
       status: item.status,
       notes: item.notes,
       outcome: item.outcome,
-      scheduledFor: item.scheduledFor
+      scheduledFor: item.scheduledFor,
+      project: item?.project
     };
 
     return (
@@ -141,9 +142,9 @@ const RescheduledCalls = ({ navigation }) => {
   return (
     <View style={[C.bgWhite, L.f1]}>
       <Header navigation={navigation} label_center='Rescheduled Calls' showDrawer={true} />
-      
+
       {responseDataDashBoard?.isLoading && <Loader />}
-      
+
       <FlatList
         data={rescheduledCalls}
         renderItem={renderCallItem}
@@ -173,9 +174,10 @@ const RescheduledCalls = ({ navigation }) => {
             <>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Name: {selectedCall.contact.name}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Phone: {selectedCall.contact.phone}</Text>
-              <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Email: {selectedCall.contact.email || 'N/A'}</Text> 
+              <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Email: {selectedCall.contact.email || 'N/A'}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Last Call: {new Date(selectedCall.calledAt).toLocaleString()}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Scheduled For: {formatDate3(selectedCall?.scheduledFor)}</Text>
+              {hasValue(selectedCall?.project) && <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Project: {selectedCall?.project?.name}</Text>}
               <Text style={[F.fsOne4, C.fcGray, F.ffM,]}>Notes:</Text>
               {selectedCall?.contactNotes?.map((note, index) => <Text key={index} style={[F.fsOne4, C.fcGray, F.ffM, L.mB0]}>{note?.note}</Text>)}
             </>

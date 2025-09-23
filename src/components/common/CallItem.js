@@ -9,6 +9,7 @@ import {
 import { C, F, HT, L, WT } from '#/commonStyles/style-layout';
 import { Ionicons } from '#/components/Icons';
 import ContactAvatar from './ContactAvatar';
+import { hasValue } from '#/Utils';
 
 const CallItem = ({ item, onInfoPress, onCallPress, onWhatsAppPress, onUpdatePress, hideCallButton = false }) => {
   return (
@@ -18,8 +19,9 @@ const CallItem = ({ item, onInfoPress, onCallPress, onWhatsAppPress, onUpdatePre
       <View style={[L.f1]}>
         <Text style={[F.ffM, F.fsOne6, F.fw6, C.fcBlack]}>{item?.name}</Text>
         <Text style={[F.fsOne6, C.fcGray, L.mT2]}>{item?.phone}</Text>
+       {hasValue(item?.project) && <Text style={[F.fsOne6, C.fcGray, L.mT2]}>{item?.project?.name}</Text>}
       </View>
-      
+
       <View style={[L.fdR, L.aiC]}>
         <Text style={[F.fsOne4, C.fcGray, L.mR15]}>{item?.lastCallTime || '2:24PM'}</Text>
         {!hideCallButton && (
@@ -32,7 +34,7 @@ const CallItem = ({ item, onInfoPress, onCallPress, onWhatsAppPress, onUpdatePre
             <Ionicons name="logo-whatsapp" size={20} color="gray" />
           </TouchableOpacity>
         )}
-       {onUpdatePress && <TouchableOpacity onPress={() => onUpdatePress(item)}>
+        {onUpdatePress && <TouchableOpacity onPress={() => onUpdatePress(item)}>
           <Ionicons name="chevron-forward-circle-outline" size={26} color="gray" />
         </TouchableOpacity>}
       </View>

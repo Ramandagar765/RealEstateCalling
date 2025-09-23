@@ -22,24 +22,21 @@ const TeamMember = ({ navigation }) => {
   }, [responseDataDashBoard?.team_members_dasboard])
 
 
-  const renderStatsCard = (stats) => (
+  const renderStatsCard = (stats,member) => (
+    console.log('memeber',member),
     <View style={[C.bgWhite, L.bR15, L.p15, L.card2]}>
       <View style={[L.fdR, L.jcSB, L.mB8]}>
         <View style={[L.aiC]}>
-          <Text style={[F.fsOne8, F.ffB, C.fcBlack, L.mB2]}>{stats.totalCalls}</Text>
-          <Text style={[F.fsOne2, F.ffR, C.fcGray, L.taC]}>Total Calls</Text>
-        </View>
-        <View style={[L.aiC]}>
-          <Text style={[F.fsOne8, F.ffB, C.fcBlack, L.mB2]}>{stats.successfulCalls}</Text>
-          <Text style={[F.fsOne2, F.ffR, C.fcGray, L.taC]}>Successful</Text>
-        </View>
-        <View style={[L.aiC]}>
           <Text style={[F.fsOne8, F.ffB, C.fcBlack, L.mB2]}>{stats.activeAssignments}</Text>
-          <Text style={[F.fsOne2, F.ffR, C.fcGray, L.taC]}>Total Calls</Text>
+          <Text style={[F.fsOne2, F.ffR, C.fcGray, L.taC]}>No. Alloted</Text>
         </View>
         <View style={[L.aiC]}>
-          <Text style={[F.fsOne8, F.ffB, C.fcBlack, L.mB2]}>{stats.deals}</Text>
-          <Text style={[F.fsOne2, F.ffR, C.fcGray, L.taC]}>Deals</Text>
+          <Text style={[F.fsOne8, F.ffB, C.fcBlack, L.mB2]}>{stats?.totalCalls}</Text>
+          <Text style={[F.fsOne2, F.ffR, C.fcGray, L.taC]}>Calls Done</Text>
+        </View>
+        <View style={[L.aiC]}>
+          <Text style={[F.fsOne8, F.ffB, C.fcBlack, L.mB2]}>{member?.interested}</Text>
+          <Text style={[F.fsOne2, F.ffR, C.fcGray, L.taC]}>Interested</Text>
         </View>
       </View>
     </View>
@@ -88,7 +85,7 @@ const TeamMember = ({ navigation }) => {
       </View>
 
       {/* Stats */}
-      {renderStatsCard(member.stats)}
+      {renderStatsCard(member.stats,member)}
     </View>
   );
 

@@ -6,9 +6,8 @@ import {
 import React, { useState } from 'react';
 import { C, F, HT, L, WT } from '../../commonStyles/style-layout'
 import { Header, TextField, CustomButton, Loader } from '#/components/common';
-import RootNavigation from '#/navigation/RootNavigation';
 import { useDispatch, useSelector } from 'react-redux';
-import { common_state, doLogin } from './store';
+import { doLogin } from './store';
 import { MyToast } from '#/Utils';
 
 const Login = ({ navigation }) => {

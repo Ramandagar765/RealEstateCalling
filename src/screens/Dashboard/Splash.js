@@ -18,11 +18,13 @@ const Splash = () => {
       if (hasValue(responseDataUser?.user_token)) {
         dispatch(verify_token());
       } else {
-        RootNavigation.replace('Login');
+        RootNavigation.reset('Login');
       }
     }, 2000);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [responseDataUser?.user_token])
 
 

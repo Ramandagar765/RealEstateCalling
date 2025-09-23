@@ -15,7 +15,8 @@ export const doLogin = createAsyncThunk('user/doLogin',async (data, { dispatch }
                     user_data: apiResponse?.data?.data?.user,
                     user_token: apiResponse?.data?.data?.token,
                  }));
-                 RootNavigation.navigate('DashBoard'); 
+                 RootNavigation.replace('DashBoard'); 
+                 RootNavigation.reset('DashBoard'); 
             }
             dispatch(common_state())
         }).catch(error => {
@@ -29,7 +30,8 @@ export const doLogin = createAsyncThunk('user/doLogin',async (data, { dispatch }
 
 export const log_out = createAsyncThunk('user/log_out', async (_, { dispatch }) => {
     dispatch(login_state({ isLoading: true, user_data: null, user_token: '' }));
-    RootNavigation.navigate('Login');
+    RootNavigation.replace('Login');
+    RootNavigation.reset('Login')
     // MyToast('Logged out successfully');
     dispatch(common_state());
 }
