@@ -4,7 +4,7 @@ import { C, L, F } from '#/commonStyles/style-layout';
 import CallItem from '#/components/common/CallItem';
 import ModalRoot from '#/components/common/Modal';
 import CallOutcomeModal from '#/components/common/CallOutcomeModal';
-import { Header, Loader } from '#/components/common';
+import { Header, Loader, SearchableList } from '#/components/common';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDashboardStats, fetchUnsuccessfulCalls, recordCall } from './store';
 import EmptyList from '#/components/common/EmptyList';
@@ -20,6 +20,7 @@ const UnsuccessfulCalls = ({ navigation }) => {
   const appState = useRef(AppState.currentState);
   const hasShownModal = useRef(false);
   const [unsuccessfulCalls, setUnsuccessfulCalls] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     get_unsuccessful_calls(0);
@@ -27,16 +28,22 @@ const UnsuccessfulCalls = ({ navigation }) => {
 
   useEffect(() => {
     setUnsuccessfulCalls(responseDataDashBoard?.unsuccessfulCalls || []);
+    // Reset the momentum flag when unsuccessful calls change (new page loaded)
+    setonEndReachedCalledDuringMomentum(false);
   }, [responseDataDashBoard?.unsuccessfulCalls]);
 
-  const get_unsuccessful_calls = (page = 0) => {
+  const get_unsuccessful_calls = (page = 0, search = '') => {
     const page_number = page + 1;
     let url = `?page=${page_number}`;
+    if (search.trim()) {
+      url += `&search=${encodeURIComponent(search.trim())}`;
+    }
     console.log('unsuccessful calls url', url);
     dispatch(fetchUnsuccessfulCalls({
       url: url,
       data: {
-        page: page_number
+        page: page_number,
+        search: search.trim()
       }
     }));
   };
@@ -103,6 +110,12 @@ const UnsuccessfulCalls = ({ navigation }) => {
     setPendingContact(contact);
     setShowOutcome(true);
   };
+
+  const handleSearchChange = (query) => {
+    setSearchQuery(query);
+    // Reset to first page when searching
+    get_unsuccessful_calls(0, query);
+  };
  
 
   const renderCallItem = ({ item }) => {
@@ -138,25 +151,34 @@ const UnsuccessfulCalls = ({ navigation }) => {
       
       {responseDataDashBoard?.isLoading && <Loader />}
       
-      <FlatList
+      <SearchableList
         data={unsuccessfulCalls}
         renderItem={renderCallItem}
-        keyExtractor={(item, index) => `${item?.id || index}`}
-        showsVerticalScrollIndicator={false}
+        searchPlaceholder="Search by name or phone..."
+        searchBarStyle={[L.mH20, L.mB10]}
+        listContainerStyle={[L.f1]}
+        onSearchChange={handleSearchChange}
         contentContainerStyle={[L.pB20]}
         onEndReached={() => {
+          console.log('onEndReached called - UnsuccessfulCalls', {
+            onEndReachedCalledDuringMomentum,
+            currentPage: responseDataDashBoard?.unsuccessfulCallsCurrentPage,
+            totalPages: responseDataDashBoard?.unsuccessfulCallsTotalPages,
+            isLoading: responseDataDashBoard?.isLoading
+          });
           if (onEndReachedCalledDuringMomentum) return;
-          if (responseDataDashBoard?.unsuccessfulCallsCurrentPage < responseDataDashBoard?.unsuccessfulCallsTotalPages) {
-            get_unsuccessful_calls(responseDataDashBoard?.unsuccessfulCallsCurrentPage);
+          if (responseDataDashBoard?.unsuccessfulCallsCurrentPage < responseDataDashBoard?.unsuccessfulCallsTotalPages && !responseDataDashBoard?.isLoading) {
+            console.log('Loading next page - UnsuccessfulCalls:', responseDataDashBoard?.unsuccessfulCallsCurrentPage);
+            get_unsuccessful_calls(responseDataDashBoard?.unsuccessfulCallsCurrentPage, searchQuery);
             setonEndReachedCalledDuringMomentum(true);
           }
         }}
         onMomentumScrollBegin={() => { setonEndReachedCalledDuringMomentum(false) }}
         refreshing={false}
-        onEndReachedThreshold={0.08}
+        onEndReachedThreshold={0.3}
         onRefresh={() => {
           dispatch(fetchDashboardStats())
-          get_unsuccessful_calls(0)
+          get_unsuccessful_calls(0, searchQuery)
         }}
         ListEmptyComponent={() => !responseDataDashBoard?.isLoading && <EmptyList />}
       />

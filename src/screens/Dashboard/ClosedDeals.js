@@ -4,7 +4,7 @@ import { C, L, F } from '#/commonStyles/style-layout';
 import CallItem from '#/components/common/CallItem';
 import ModalRoot from '#/components/common/Modal';
 import CallOutcomeModal from '#/components/common/CallOutcomeModal';
-import { Header, Loader } from '#/components/common';
+import { Header, Loader, SearchableList } from '#/components/common';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchClosedDeals, recordCall } from './store';
 import EmptyList from '#/components/common/EmptyList';
@@ -21,6 +21,7 @@ const ClosedDeals = ({ navigation }) => {
   const appState = useRef(AppState.currentState);
   const hasShownModal = useRef(false);
   const [closedDeals, setClosedDeals] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     get_closed_deals(0);
@@ -28,16 +29,22 @@ const ClosedDeals = ({ navigation }) => {
 
   useEffect(() => {
     setClosedDeals(responseDataDashBoard?.closedDeals || []);
+    // Reset the momentum flag when closed deals change (new page loaded)
+    setonEndReachedCalledDuringMomentum(false);
   }, [responseDataDashBoard?.closedDeals]);
 
-  const get_closed_deals = (page = 0) => {
+  const get_closed_deals = (page = 0, search = '') => {
     const page_number = page + 1;
     let url = `?page=${page_number}`;
+    if (search.trim()) {
+      url += `&search=${encodeURIComponent(search.trim())}`;
+    }
     console.log('closed deals url', url);
     dispatch(fetchClosedDeals({
       url: url,
       data: {
-        page: page_number
+        page: page_number,
+        search: search.trim()
       }
     }));
   };
@@ -92,7 +99,13 @@ const ClosedDeals = ({ navigation }) => {
   };
 
   const handleRefresh = () => {
-    get_closed_deals(0);
+    get_closed_deals(0, searchQuery);
+  };
+
+  const handleSearchChange = (query) => {
+    setSearchQuery(query);
+    // Reset to first page when searching
+    get_closed_deals(0, query);
   };
 
   const renderDealItem = ({ item }) => {
@@ -123,23 +136,32 @@ const ClosedDeals = ({ navigation }) => {
 
       {responseDataDashBoard?.isLoading && <Loader />}
 
-      <FlatList
+      <SearchableList
         data={closedDeals}
         renderItem={renderDealItem}
-        keyExtractor={(item, index) => `${item?.id || index}`}
-        showsVerticalScrollIndicator={false}
+        searchPlaceholder="Search by name or phone..."
+        searchBarStyle={[L.mH20, L.mB10]}
+        listContainerStyle={[L.f1]}
+        onSearchChange={handleSearchChange}
         contentContainerStyle={[L.pB20]}
         onEndReached={() => {
+          console.log('onEndReached called - ClosedDeals', {
+            onEndReachedCalledDuringMomentum,
+            currentPage: responseDataDashBoard?.closedDealsCurrentPage,
+            totalPages: responseDataDashBoard?.closedDealsTotalPages,
+            isLoading: responseDataDashBoard?.isLoading
+          });
           if (onEndReachedCalledDuringMomentum) return;
-          if (responseDataDashBoard?.closedDealsCurrentPage < responseDataDashBoard?.closedDealsTotalPages) {
-            get_closed_deals(responseDataDashBoard?.closedDealsCurrentPage);
+          if (responseDataDashBoard?.closedDealsCurrentPage < responseDataDashBoard?.closedDealsTotalPages && !responseDataDashBoard?.isLoading) {
+            console.log('Loading next page - ClosedDeals:', responseDataDashBoard?.closedDealsCurrentPage);
+            get_closed_deals(responseDataDashBoard?.closedDealsCurrentPage, searchQuery);
             setonEndReachedCalledDuringMomentum(true);
           }
         }}
         onMomentumScrollBegin={() => { setonEndReachedCalledDuringMomentum(false) }}
         refreshing={false}
-        onEndReachedThreshold={0.05}
-        onRefresh={() => get_closed_deals(0)}
+        onEndReachedThreshold={0.3}
+        onRefresh={() => get_closed_deals(0, searchQuery)}
         ListEmptyComponent={() => !responseDataDashBoard?.isLoading && <EmptyList />}
       />
 

@@ -3,7 +3,7 @@ import { View, TextInput, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '#/components/Icons';
 import debounce from 'lodash/debounce';
 import CommonFlatList from './CommonFlatlist';
-import Spinner from './Spinner';
+import { Loader } from './index';
 
 const SearchableList = ({
   data,
@@ -25,38 +25,14 @@ const SearchableList = ({
   ...flatListProps        
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredData, setFilteredData] = useState(data);
   const ref = React.createRef();
-
-  React.useEffect(() => {
-    setFilteredData(data);
-  }, [data]);
-
-  const defaultFilter = useCallback((items, query) => {
-    if (!query.trim()) return items;
-    
-    return items.filter(item => {
-      return searchFields?.some(field => {
-        const fieldPath = field.split('.');
-        let value = item;
-        
-        for (const key of fieldPath) {
-          if (!value || !value[key]) return false;
-          value = value[key];
-        }
-        
-        return String(value).toLowerCase().includes(query.toLowerCase());
-      });
-    });
-  }, [searchFields]);
 
   const handleSearch = useCallback(
     debounce((query) => {
-      const filtered = defaultFilter(data, query);
-      setFilteredData(filtered);
-      onSearchChange?.(query, filtered);
+      // Call the parent's search handler with the query
+      onSearchChange?.(query);
     }, debounceTime),
-    [data, defaultFilter, onSearchChange]
+    [onSearchChange]
   );
 
   const onChangeText = (text) => {
@@ -68,8 +44,6 @@ const SearchableList = ({
     setSearchQuery('');
     handleSearch('');
   };
-
- 
 
   return (
     <View style={[styles.container, listContainerStyle]}>
@@ -89,19 +63,18 @@ const SearchableList = ({
         )}
       </View> }
       <CommonFlatList 
-        dataSource={filteredData}
+        dataSource={data}
         _renderItems={renderItem}
-        _keyExtractor={(item, index) => String(item.id || index)}
-        _listEmptyComponent={filteredData?.length===0 && ListEmptyComponent}
+        _keyExtractor={(item, index) => String(item.id || item.assignmentId || index)}
+        _listEmptyComponent={data?.length===0 && ListEmptyComponent}
         onEndReachedThreshold={0.5} 
         onRefresh={onRefresh}
         _pagingEnabled={pagingEnabled}
         onEndReached={()=>{
-          if(filteredData?.length >= 8) {
-            onEndReached?.();
-          }
+          // Always allow pagination - let the parent component handle the logic
+          onEndReached?.();
         }}
-        _listFooterComponent={refreshing && <Spinner isLoading={refreshing} text='Hold on Loading More'/>} 
+        _listFooterComponent={refreshing && <Loader />} 
         {...flatListProps}
       />
     </View>

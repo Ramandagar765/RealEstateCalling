@@ -4,7 +4,7 @@ import { C, L, F, WT } from '#/commonStyles/style-layout';
 import CallItem from '#/components/common/CallItem';
 import CallOutcomeModal from '#/components/common/CallOutcomeModal';
 import ModalRoot from '#/components/common/Modal';
-import { Header, Loader } from '#/components/common';
+import { Header, Loader, SearchableList } from '#/components/common';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetch_contacts, fetchDashboardStats, fetchProjects, recordCall, team_calls } from './store';
 import EmptyList from '#/components/common/EmptyList';
@@ -19,7 +19,8 @@ const AssignedContacts = ({ navigation }) => {
   const [onEndReachedCalledDuringMomentum, setonEndReachedCalledDuringMomentum] = useState(false);
   const appState = useRef(AppState.currentState);
   const hasShownModal = useRef(false);
-  const [contacts,set_contacts] = useState([])
+  const [contacts,set_contacts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     dispatch(fetchProjects());
@@ -29,17 +30,23 @@ const AssignedContacts = ({ navigation }) => {
 
   useEffect(() => {
     set_contacts(responseDataDashBoard?.contacts || [])
+    // Reset the momentum flag when contacts change (new page loaded)
+    setonEndReachedCalledDuringMomentum(false)
 }, [responseDataDashBoard?.contacts])
 
 
-  const get_contacts = (page = 0) => {
+  const get_contacts = (page = 0, search = '') => {
     const page_number = page + 1
     let url = `?page=${page_number}`;
+    if (search.trim()) {
+      url += `&search=${encodeURIComponent(search.trim())}`;
+    }
     console.log('url',url)
     dispatch(fetch_contacts({
       url: url,
       data: {
-        page: page_number
+        page: page_number,
+        search: search.trim()
       }
     }));
   }
@@ -114,6 +121,12 @@ const AssignedContacts = ({ navigation }) => {
     setShowOutcome(true);
   };
 
+  const handleSearchChange = (query) => {
+    setSearchQuery(query);
+    // Reset to first page when searching
+    get_contacts(0, query);
+  };
+
  
   const renderContactItem = ({ item,index }) => {
     const transformedItem = {
@@ -174,25 +187,34 @@ const AssignedContacts = ({ navigation }) => {
         </View>
       </View>
 
-      <FlatList
+      <SearchableList
         data={contacts}
         renderItem={renderContactItem}
-        keyExtractor={(item, index) => `${item?.assignmentId || item?.contact?.id || index}`}
-        showsVerticalScrollIndicator={false}
+        searchPlaceholder="Search by name or phone..."
+        searchBarStyle={[L.mH20, L.mB10]}
+        listContainerStyle={[L.f1]}
+        onSearchChange={handleSearchChange}
         contentContainerStyle={[L.pB20]}
         onEndReached={() => {
+          console.log('onEndReached called', {
+            onEndReachedCalledDuringMomentum,
+            currentPage: responseDataDashBoard?.contactsCurrentPage,
+            totalPages: responseDataDashBoard?.contactsTotalPages,
+            isLoading: responseDataDashBoard?.isLoading
+          });
           if (onEndReachedCalledDuringMomentum) return;
-          if (responseDataDashBoard?.contactsCurrentPage < responseDataDashBoard?.contactsTotalPages) {
-            get_contacts(responseDataDashBoard?.contactsCurrentPage);
+          if (responseDataDashBoard?.contactsCurrentPage < responseDataDashBoard?.contactsTotalPages && !responseDataDashBoard?.isLoading) {
+            console.log('Loading next page:', responseDataDashBoard?.contactsCurrentPage);
+            get_contacts(responseDataDashBoard?.contactsCurrentPage, searchQuery);
             setonEndReachedCalledDuringMomentum(true)
           }
         }}
         onMomentumScrollBegin={() => { setonEndReachedCalledDuringMomentum(false) }}
         refreshing={false}
-        onEndReachedThreshold={0.05}
+        onEndReachedThreshold={0.3}
         onRefresh={()=>{
           dispatch(fetchDashboardStats())
-          get_contacts(0)
+          get_contacts(0, searchQuery)
         }}
         ListEmptyComponent={() => !responseDataDashBoard?.isLoading && <EmptyList />}
       />

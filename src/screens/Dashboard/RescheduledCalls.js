@@ -4,7 +4,7 @@ import { C, L, F } from '#/commonStyles/style-layout';
 import CallItem from '#/components/common/CallItem';
 import ModalRoot from '#/components/common/Modal';
 import CallOutcomeModal from '#/components/common/CallOutcomeModal';
-import { Header, Loader } from '#/components/common';
+import { Header, Loader, SearchableList } from '#/components/common';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchRescheduledCalls, recordCall } from './store';
 import EmptyList from '#/components/common/EmptyList';
@@ -21,6 +21,7 @@ const RescheduledCalls = ({ navigation }) => {
   const appState = useRef(AppState.currentState);
   const hasShownModal = useRef(false);
   const [rescheduledCalls, setRescheduledCalls] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     get_rescheduled_calls(0);
@@ -28,16 +29,22 @@ const RescheduledCalls = ({ navigation }) => {
 
   useEffect(() => {
     setRescheduledCalls(responseDataDashBoard?.rescheduledCalls || []);
+    // Reset the momentum flag when rescheduled calls change (new page loaded)
+    setonEndReachedCalledDuringMomentum(false);
   }, [responseDataDashBoard?.rescheduledCalls]);
 
-  const get_rescheduled_calls = (page = 0) => {
+  const get_rescheduled_calls = (page = 0, search = '') => {
     const page_number = page + 1;
     let url = `?page=${page_number}`;
+    if (search.trim()) {
+      url += `&search=${encodeURIComponent(search.trim())}`;
+    }
     console.log('rescheduled calls url', url);
     dispatch(fetchRescheduledCalls({
       url: url,
       data: {
-        page: page_number
+        page: page_number,
+        search: search.trim()
       }
     }));
   };
@@ -105,6 +112,12 @@ const RescheduledCalls = ({ navigation }) => {
     setShowOutcome(true);
   };
 
+  const handleSearchChange = (query) => {
+    setSearchQuery(query);
+    // Reset to first page when searching
+    get_rescheduled_calls(0, query);
+  };
+
   const handleRefresh = () => {
     get_rescheduled_calls(0);
   };
@@ -145,23 +158,32 @@ const RescheduledCalls = ({ navigation }) => {
 
       {responseDataDashBoard?.isLoading && <Loader />}
 
-      <FlatList
+      <SearchableList
         data={rescheduledCalls}
         renderItem={renderCallItem}
-        keyExtractor={(item, index) => `${item?.id || index}`}
-        showsVerticalScrollIndicator={false}
+        searchPlaceholder="Search by name or phone..."
+        searchBarStyle={[L.mH20, L.mB10]}
+        listContainerStyle={[L.f1]}
+        onSearchChange={handleSearchChange}
         contentContainerStyle={[L.pB20]}
         onEndReached={() => {
+          console.log('onEndReached called - RescheduledCalls', {
+            onEndReachedCalledDuringMomentum,
+            currentPage: responseDataDashBoard?.rescheduledCallsCurrentPage,
+            totalPages: responseDataDashBoard?.rescheduledCallsTotalPages,
+            isLoading: responseDataDashBoard?.isLoading
+          });
           if (onEndReachedCalledDuringMomentum) return;
-          if (responseDataDashBoard?.rescheduledCallsCurrentPage < responseDataDashBoard?.rescheduledCallsTotalPages) {
-            get_rescheduled_calls(responseDataDashBoard?.rescheduledCallsCurrentPage);
+          if (responseDataDashBoard?.rescheduledCallsCurrentPage < responseDataDashBoard?.rescheduledCallsTotalPages && !responseDataDashBoard?.isLoading) {
+            console.log('Loading next page - RescheduledCalls:', responseDataDashBoard?.rescheduledCallsCurrentPage);
+            get_rescheduled_calls(responseDataDashBoard?.rescheduledCallsCurrentPage, searchQuery);
             setonEndReachedCalledDuringMomentum(true);
           }
         }}
         onMomentumScrollBegin={() => { setonEndReachedCalledDuringMomentum(false) }}
         refreshing={false}
-        onEndReachedThreshold={0.05}
-        onRefresh={() => get_rescheduled_calls(0)}
+        onEndReachedThreshold={0.3}
+        onRefresh={() => get_rescheduled_calls(0, searchQuery)}
         ListEmptyComponent={() => !responseDataDashBoard?.isLoading && <EmptyList />}
       />
 
