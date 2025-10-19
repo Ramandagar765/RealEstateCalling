@@ -48,8 +48,10 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
       return onClose?.();
     }
 
-    if (callStatus === 'successful' && (outcome === 'interested' || outcome === 'deal_closed') && !selectedProject) {
-      MyToast('Please select  project');
+    // All outcomes except 'not_interested' require project selection
+    const requiresProject = ['interested', 'follow_up', 'information_sharing', 'site_visit_planned', 'site_visit_done', 'ready_to_move', 'sales_closed'];
+    if (callStatus === 'successful' && requiresProject.includes(outcome) && !selectedProject) {
+      MyToast('Please select project');
       return;
     }
     if (!comment) {
@@ -67,13 +69,16 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
       payload.status = 'successful';
       payload.outcome = outcome;
 
-      if (outcome === 'interested') {
+      // All outcomes except 'not_interested' need scheduling and project
+      const requiresScheduling = ['interested', 'follow_up', 'information_sharing', 'site_visit_planned', 'site_visit_done', 'ready_to_move'];
+      
+      if (requiresScheduling.includes(outcome)) {
         console.log('scheduled date', JSON.stringify({ scheduledDate: scheduledDate.toISOString() }));
         payload.followUpRequired = true;
         payload.scheduledFor = scheduledDate.toISOString();
         payload.projectId = selectedProject;
-      } else if (outcome === 'deal_closed') {
-        payload.outcome = 'deal_closed';
+      } else if (outcome === 'sales_closed') {
+        payload.outcome = 'sales_closed';
         payload.projectId = selectedProject;
       }
     } else {
@@ -87,7 +92,9 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
     }
     console.log('payload', payload);
     onSave?.(payload);
-    resetForm();
+    setTimeout(()=>{
+      resetForm();
+    },2000)
   };
 
   const resetForm = () => {
@@ -156,18 +163,25 @@ const CallOutcomeModal = ({ visible, onClose, contact, onSave, showOnlySuccessfu
   };
 
   const needsScheduling = () => {
-    return callStatus === 'successful' && outcome === 'interested';
+    const requiresScheduling = ['interested', 'follow_up', 'information_sharing', 'site_visit_planned', 'site_visit_done', 'ready_to_move'];
+    return callStatus === 'successful' && requiresScheduling.includes(outcome);
   };
 
   const needsProjectSelection = () => {
-    return callStatus === 'successful' && (outcome === 'interested' || outcome === 'deal_closed');
+    const requiresProject = ['interested', 'follow_up', 'information_sharing', 'site_visit_planned', 'site_visit_done', 'ready_to_move', 'sales_closed'];
+    return callStatus === 'successful' && requiresProject.includes(outcome);
   };
 
   const getButtonLabel = () => {
     if (callStatus === 'successful') {
       if (outcome === 'interested') return 'Schedule Follow-up';
       if (outcome === 'not_interested') return 'Mark Not Interested';
-      if (outcome === 'deal_closed') return 'Mark as Closed Deal';
+      if (outcome === 'follow_up') return 'Schedule Follow-up';
+      if (outcome === 'information_sharing') return 'Schedule Info Sharing';
+      if (outcome === 'site_visit_planned') return 'Schedule Site Visit';
+      if (outcome === 'site_visit_done') return 'Mark Site Visit Done';
+      if (outcome === 'ready_to_move') return 'Mark Ready to Move';
+      if (outcome === 'sales_closed') return 'Mark as Sales Closed';
     }
     return 'Mark Unsuccessful';
   };

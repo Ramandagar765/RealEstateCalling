@@ -195,12 +195,21 @@ export const recordCall = createAsyncThunk('dashboard/recordCall', async (data, 
         if (apiResponse?.data.success) {
              dispatch(fetch_contacts({ url: `?page=${1}`, data: { page: 1 } }))
             dispatch(fetchDashboardStats());
+            
             if (data.status === 'successful') {
-                if (data.outcome === 'deal_closed') {
-                    dispatch(fetchClosedDeals({ url: `?page=${1}`, data: { page: 1 } }));
-                } else if (data.outcome === 'interested') {
-                    dispatch(fetchRescheduledCalls({ url: `?page=${1}`, data: { page: 1 } }));
-                }
+                // Refresh the specific outcome screen
+                const outcomeRefreshMap = {
+                    'interested': () => dispatch(fetchInterestedCalls({ url: `?page=${1}`, data: { page: 1 } })),
+                    'follow_up': () => dispatch(fetchFollowUpCalls({ url: `?page=${1}`, data: { page: 1 } })),
+                    'information_sharing': () => dispatch(fetchInformationSharingCalls({ url: `?page=${1}`, data: { page: 1 } })),
+                    'site_visit_planned': () => dispatch(fetchSiteVisitPlannedCalls({ url: `?page=${1}`, data: { page: 1 } })),
+                    'site_visit_done': () => dispatch(fetchSiteVisitDoneCalls({ url: `?page=${1}`, data: { page: 1 } })),
+                    'ready_to_move': () => dispatch(fetchReadyToMoveCalls({ url: `?page=${1}`, data: { page: 1 } })),
+                    'sales_closed': () => dispatch(fetchClosedDeals({ url: `?page=${1}`, data: { page: 1 } }))
+                };
+                
+                const refreshFunction = outcomeRefreshMap[data.outcome];
+                if (refreshFunction) refreshFunction();
             } else {
                 dispatch(fetchUnsuccessfulCalls({ url: `?page=${1}`, data: { page: 1 } }));
             }
@@ -216,6 +225,144 @@ export const recordCall = createAsyncThunk('dashboard/recordCall', async (data, 
     });
 });
 
+
+// Fetch calls by outcome - Interested
+export const fetchInterestedCalls = createAsyncThunk('dashboard/fetchInterestedCalls', async (data, { dispatch, getState }) => {
+    dispatch(common_state({ isLoading: true }));
+    const interestedCalls = getState()?.dashboard?.interestedCalls;
+    await performGetRequest(API.interestedCalls + data?.url).then(res => {
+        const apiResponse = responseHandler(res);
+        if (apiResponse?.data.success) {
+            const newCalls = apiResponse?.data?.data?.items || [];
+            let finalCalls = data?.data?.page === 1 ? newCalls : [...(interestedCalls || []), ...newCalls];
+            dispatch(setInterestedCalls({
+                items: finalCalls,
+                totalPages: apiResponse?.data?.data?.totalPages,
+                currentPage: data?.data?.page,
+            }));
+        }
+        dispatch(common_state());
+    }).catch(error => {
+        const apiResponse = responseHandler(error.response);
+        MyToast(apiResponse?.data?.message ?? '');
+        dispatch(common_state());
+    });
+});
+
+// Fetch calls by outcome - Follow Up
+export const fetchFollowUpCalls = createAsyncThunk('dashboard/fetchFollowUpCalls', async (data, { dispatch, getState }) => {
+    dispatch(common_state({ isLoading: true }));
+    const followUpCalls = getState()?.dashboard?.followUpCalls;
+    await performGetRequest(API.followUpOutcomeCalls + data?.url).then(res => {
+        const apiResponse = responseHandler(res);
+        if (apiResponse?.data.success) {
+            const newCalls = apiResponse?.data?.data?.items || [];
+            let finalCalls = data?.data?.page === 1 ? newCalls : [...(followUpCalls || []), ...newCalls];
+            dispatch(setFollowUpCalls({
+                items: finalCalls,
+                totalPages: apiResponse?.data?.data?.totalPages,
+                currentPage: data?.data?.page,
+            }));
+        }
+        dispatch(common_state());
+    }).catch(error => {
+        const apiResponse = responseHandler(error.response);
+        MyToast(apiResponse?.data?.message ?? '');
+        dispatch(common_state());
+    });
+});
+
+// Fetch calls by outcome - Information Sharing
+export const fetchInformationSharingCalls = createAsyncThunk('dashboard/fetchInformationSharingCalls', async (data, { dispatch, getState }) => {
+    dispatch(common_state({ isLoading: true }));
+    const informationSharingCalls = getState()?.dashboard?.informationSharingCalls;
+    await performGetRequest(API.informationSharingCalls + data?.url).then(res => {
+        const apiResponse = responseHandler(res);
+        if (apiResponse?.data.success) {
+            const newCalls = apiResponse?.data?.data?.items || [];
+            let finalCalls = data?.data?.page === 1 ? newCalls : [...(informationSharingCalls || []), ...newCalls];
+            dispatch(setInformationSharingCalls({
+                items: finalCalls,
+                totalPages: apiResponse?.data?.data?.totalPages,
+                currentPage: data?.data?.page,
+            }));
+        }
+        dispatch(common_state());
+    }).catch(error => {
+        const apiResponse = responseHandler(error.response);
+        MyToast(apiResponse?.data?.message ?? '');
+        dispatch(common_state());
+    });
+});
+
+// Fetch calls by outcome - Site Visit Planned
+export const fetchSiteVisitPlannedCalls = createAsyncThunk('dashboard/fetchSiteVisitPlannedCalls', async (data, { dispatch, getState }) => {
+    dispatch(common_state({ isLoading: true }));
+    const siteVisitPlannedCalls = getState()?.dashboard?.siteVisitPlannedCalls;
+    await performGetRequest(API.siteVisitPlannedCalls + data?.url).then(res => {
+        const apiResponse = responseHandler(res);
+        if (apiResponse?.data.success) {
+            const newCalls = apiResponse?.data?.data?.items || [];
+            let finalCalls = data?.data?.page === 1 ? newCalls : [...(siteVisitPlannedCalls || []), ...newCalls];
+            dispatch(setSiteVisitPlannedCalls({
+                items: finalCalls,
+                totalPages: apiResponse?.data?.data?.totalPages,
+                currentPage: data?.data?.page,
+            }));
+        }
+        dispatch(common_state());
+    }).catch(error => {
+        const apiResponse = responseHandler(error.response);
+        MyToast(apiResponse?.data?.message ?? '');
+        dispatch(common_state());
+    });
+});
+
+// Fetch calls by outcome - Site Visit Done
+export const fetchSiteVisitDoneCalls = createAsyncThunk('dashboard/fetchSiteVisitDoneCalls', async (data, { dispatch, getState }) => {
+    dispatch(common_state({ isLoading: true }));
+    const siteVisitDoneCalls = getState()?.dashboard?.siteVisitDoneCalls;
+    await performGetRequest(API.siteVisitDoneCalls + data?.url).then(res => {
+        const apiResponse = responseHandler(res);
+        if (apiResponse?.data.success) {
+            const newCalls = apiResponse?.data?.data?.items || [];
+            let finalCalls = data?.data?.page === 1 ? newCalls : [...(siteVisitDoneCalls || []), ...newCalls];
+            dispatch(setSiteVisitDoneCalls({
+                items: finalCalls,
+                totalPages: apiResponse?.data?.data?.totalPages,
+                currentPage: data?.data?.page,
+            }));
+        }
+        dispatch(common_state());
+    }).catch(error => {
+        const apiResponse = responseHandler(error.response);
+        MyToast(apiResponse?.data?.message ?? '');
+        dispatch(common_state());
+    });
+});
+
+// Fetch calls by outcome - Ready to Move
+export const fetchReadyToMoveCalls = createAsyncThunk('dashboard/fetchReadyToMoveCalls', async (data, { dispatch, getState }) => {
+    dispatch(common_state({ isLoading: true }));
+    const readyToMoveCalls = getState()?.dashboard?.readyToMoveCalls;
+    await performGetRequest(API.readyToMoveCalls + data?.url).then(res => {
+        const apiResponse = responseHandler(res);
+        if (apiResponse?.data.success) {
+            const newCalls = apiResponse?.data?.data?.items || [];
+            let finalCalls = data?.data?.page === 1 ? newCalls : [...(readyToMoveCalls || []), ...newCalls];
+            dispatch(setReadyToMoveCalls({
+                items: finalCalls,
+                totalPages: apiResponse?.data?.data?.totalPages,
+                currentPage: data?.data?.page,
+            }));
+        }
+        dispatch(common_state());
+    }).catch(error => {
+        const apiResponse = responseHandler(error.response);
+        MyToast(apiResponse?.data?.message ?? '');
+        dispatch(common_state());
+    });
+});
 
 export const verify_token = createAsyncThunk('auth/verify_token', async (_, { dispatch }) => {
         dispatch(common_state({ isLoading: true }));
@@ -238,15 +385,19 @@ export const verify_token = createAsyncThunk('auth/verify_token', async (_, { di
     });
 });
 
-export const team_dashboard = createAsyncThunk('dashboard/team_dashboard', async (_, { dispatch }) => {
-    console.log('fetching dashboard stats');
+export const team_dashboard = createAsyncThunk('dashboard/team_dashboard', async (params = {}, { dispatch }) => {
+    console.log('fetching team dashboard with params:', params);
     dispatch(common_state({ isLoading: true }));
-    await performGetRequest(API.team_members).then(res => {
+    
+    const { contactType = 0 } = params;
+    const url = `${API.team_members}?contactType=${contactType}`;
+    
+    await performGetRequest(url).then(res => {
         const apiResponse = responseHandler(res);
         dispatch(set_team_dashboard(apiResponse?.data?.data || null));
     }).catch(error => {
         console.log('failure', error);
-            const apiResponse = responseHandler(error.response);
+        const apiResponse = responseHandler(error.response);
         MyToast(apiResponse?.data?.message ?? '');
         dispatch(common_state());
     });
@@ -345,6 +496,30 @@ const dashboardSlice = createSlice({
     closedDealsTotalPages: 0,
     closedDealsCurrentPage: 1,
 
+    // Outcome-specific lists
+    interestedCalls: [],
+    interestedCallsTotalPages: 0,
+    interestedCallsCurrentPage: 1,
+    
+    followUpCalls: [],
+    followUpCallsTotalPages: 0,
+    followUpCallsCurrentPage: 1,
+    
+    informationSharingCalls: [],
+    informationSharingCallsTotalPages: 0,
+    informationSharingCallsCurrentPage: 1,
+    
+    siteVisitPlannedCalls: [],
+    siteVisitPlannedCallsTotalPages: 0,
+    siteVisitPlannedCallsCurrentPage: 1,
+    
+    siteVisitDoneCalls: [],
+    siteVisitDoneCallsTotalPages: 0,
+    siteVisitDoneCallsCurrentPage: 1,
+    
+    readyToMoveCalls: [],
+    readyToMoveCallsTotalPages: 0,
+    readyToMoveCallsCurrentPage: 1,
 
         // Team Members
         team_members_dasboard: null,
@@ -395,6 +570,42 @@ const dashboardSlice = createSlice({
       state.closedDealsTotalPages = data.totalPages || 0;
       state.closedDealsCurrentPage = data.currentPage || 1;
     },
+    setInterestedCalls: (state, action) => {
+      const data = action.payload || {};
+      state.interestedCalls = data.items || [];
+      state.interestedCallsTotalPages = data.totalPages || 0;
+      state.interestedCallsCurrentPage = data.currentPage || 1;
+    },
+    setFollowUpCalls: (state, action) => {
+      const data = action.payload || {};
+      state.followUpCalls = data.items || [];
+      state.followUpCallsTotalPages = data.totalPages || 0;
+      state.followUpCallsCurrentPage = data.currentPage || 1;
+    },
+    setInformationSharingCalls: (state, action) => {
+      const data = action.payload || {};
+      state.informationSharingCalls = data.items || [];
+      state.informationSharingCallsTotalPages = data.totalPages || 0;
+      state.informationSharingCallsCurrentPage = data.currentPage || 1;
+    },
+    setSiteVisitPlannedCalls: (state, action) => {
+      const data = action.payload || {};
+      state.siteVisitPlannedCalls = data.items || [];
+      state.siteVisitPlannedCallsTotalPages = data.totalPages || 0;
+      state.siteVisitPlannedCallsCurrentPage = data.currentPage || 1;
+    },
+    setSiteVisitDoneCalls: (state, action) => {
+      const data = action.payload || {};
+      state.siteVisitDoneCalls = data.items || [];
+      state.siteVisitDoneCallsTotalPages = data.totalPages || 0;
+      state.siteVisitDoneCallsCurrentPage = data.currentPage || 1;
+    },
+    setReadyToMoveCalls: (state, action) => {
+      const data = action.payload || {};
+      state.readyToMoveCalls = data.items || [];
+      state.readyToMoveCallsTotalPages = data.totalPages || 0;
+      state.readyToMoveCallsCurrentPage = data.currentPage || 1;
+    },
         set_team_dashboard: (state, action) => {
             state.team_members_dasboard = action?.payload || null;
             state.isLoading = false;
@@ -419,6 +630,12 @@ export const {
     setRescheduledCalls,
     setUnsuccessfulCalls,
     setClosedDeals,
+    setInterestedCalls,
+    setFollowUpCalls,
+    setInformationSharingCalls,
+    setSiteVisitPlannedCalls,
+    setSiteVisitDoneCalls,
+    setReadyToMoveCalls,
     common_state,
     set_team_dashboard,
     set_last_comment,

@@ -9,7 +9,7 @@ import {
 import { C, F, HT, L, WT } from '#/commonStyles/style-layout';
 import { Ionicons } from '#/components/Icons';
 import ContactAvatar from './ContactAvatar';
-import { hasValue } from '#/Utils';
+import { formatDate3, hasValue } from '#/Utils';
 
 const CallItem = ({ item, onInfoPress, onCallPress, onWhatsAppPress, onUpdatePress, hideCallButton = false }) => {
   return (
@@ -19,7 +19,18 @@ const CallItem = ({ item, onInfoPress, onCallPress, onWhatsAppPress, onUpdatePre
       <View style={[L.f1]}>
         <Text style={[F.ffM, F.fsOne6, F.fw6, C.fcBlack]}>{item?.name}</Text>
         <Text style={[F.fsOne6, C.fcGray, L.mT2]}>{item?.phone}</Text>
-       {hasValue(item?.project) && <Text style={[F.fsOne6, C.fcGray, L.mT2]}>{item?.project?.name}</Text>}
+        {hasValue(item?.project) && <Text style={[F.fsOne6, C.fcGray, L.mT2]}>{item?.project?.name}</Text>}
+
+        {hasValue(item?.scheduledFor) && <Text style={[F.fsOne6, C.fcGray, L.mT2]}>{formatDate3(item?.scheduledFor)}</Text>}
+        {hasValue(item?.file_name) && (
+          <Text style={[F.fsOne6, C.fcGray, L.mT2]}>
+            {item?.file_name
+              ?.split('/')
+              .pop()
+              ?.replace(/^\d+-\d+-/, '')}
+          </Text>
+        )}
+
       </View>
 
       <View style={[L.fdR, L.aiC]}>

@@ -7,12 +7,15 @@ import CallOutcomeModal from '#/components/common/CallOutcomeModal';
 import { Header, Loader, SearchableList } from '#/components/common';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchRescheduledCalls, recordCall } from './store';
+import { fetchScheduledLeads, recordLeadCall } from '#/screens/Leads/store';
 import EmptyList from '#/components/common/EmptyList';
 import { formatDate3, hasValue } from '#/Utils';
 
 const RescheduledCalls = ({ navigation }) => {
   const dispatch = useDispatch();
   const responseDataDashBoard = useSelector(state => state?.dashboard);
+  const responseDataLeads = useSelector(state => state?.leads);
+  const appMode = useSelector(state => state?.app?.mode || 'data');
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showOutcome, setShowOutcome] = useState(false);
   const [selectedCall, setSelectedCall] = useState(null);
@@ -23,15 +26,26 @@ const RescheduledCalls = ({ navigation }) => {
   const [rescheduledCalls, setRescheduledCalls] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    get_rescheduled_calls(0);
-  }, []);
+  // Choose the appropriate data source based on mode
+  const responseData = appMode === 'leads' ? responseDataLeads : responseDataDashBoard;
 
   useEffect(() => {
-    setRescheduledCalls(responseDataDashBoard?.rescheduledCalls || []);
-    // Reset the momentum flag when rescheduled calls change (new page loaded)
+    if (appMode === 'leads') {
+      get_scheduled_leads(0);
+    } else {
+      get_rescheduled_calls(0);
+    }
+  }, [appMode]);
+
+  useEffect(() => {
+    if (appMode === 'leads') {
+      setRescheduledCalls(responseDataLeads?.scheduledLeads || []);
+    } else {
+      setRescheduledCalls(responseDataDashBoard?.rescheduledCalls || []);
+    }
+    // Reset the momentum flag when rescheduled calls/scheduled leads change (new page loaded)
     setonEndReachedCalledDuringMomentum(false);
-  }, [responseDataDashBoard?.rescheduledCalls]);
+  }, [responseDataDashBoard?.rescheduledCalls, responseDataLeads?.scheduledLeads, appMode]);
 
   const get_rescheduled_calls = (page = 0, search = '') => {
     const page_number = page + 1;
@@ -41,6 +55,22 @@ const RescheduledCalls = ({ navigation }) => {
     }
     console.log('rescheduled calls url', url);
     dispatch(fetchRescheduledCalls({
+      url: url,
+      data: {
+        page: page_number,
+        search: search.trim()
+      }
+    }));
+  };
+
+  const get_scheduled_leads = (page = 0, search = '') => {
+    const page_number = page + 1;
+    let url = `?page=${page_number}`;
+    if (search.trim()) {
+      url += `&search=${encodeURIComponent(search.trim())}`;
+    }
+    console.log('scheduled leads url', url);
+    dispatch(fetchScheduledLeads({
       url: url,
       data: {
         page: page_number,
@@ -81,12 +111,16 @@ const RescheduledCalls = ({ navigation }) => {
         ...callData,
         contactId: pendingContact.contact.id
       };
-      await dispatch(recordCall(updatedCallData));
+      if (appMode === 'leads') {
+        await dispatch(recordLeadCall(updatedCallData));
+        get_scheduled_leads(0);
+      } else {
+        await dispatch(recordCall(updatedCallData));
+        get_rescheduled_calls(0);
+      }
       setShowOutcome(false);
       setPendingContact(null);
       hasShownModal.current = false;
-      // Refresh the rescheduled calls list
-      get_rescheduled_calls(0);
     } catch (error) {
       console.error('Error recording call:', error);
     }
@@ -115,11 +149,19 @@ const RescheduledCalls = ({ navigation }) => {
   const handleSearchChange = (query) => {
     setSearchQuery(query);
     // Reset to first page when searching
-    get_rescheduled_calls(0, query);
+    if (appMode === 'leads') {
+      get_scheduled_leads(0, query);
+    } else {
+      get_rescheduled_calls(0, query);
+    }
   };
 
   const handleRefresh = () => {
-    get_rescheduled_calls(0);
+    if (appMode === 'leads') {
+      get_scheduled_leads(0);
+    } else {
+      get_rescheduled_calls(0);
+    }
   };
 
   const renderCallItem = ({ item }) => {
@@ -154,9 +196,9 @@ const RescheduledCalls = ({ navigation }) => {
 
   return (
     <View style={[C.bgWhite, L.f1]}>
-      <Header navigation={navigation} label_center='Rescheduled Calls' showDrawer={true} />
+      <Header navigation={navigation} label_center={appMode === 'leads' ? 'Scheduled Leads' : 'Rescheduled Calls'} showDrawer={true} />
 
-      {responseDataDashBoard?.isLoading && <Loader />}
+      {responseData?.isLoading && <Loader />}
 
       <SearchableList
         data={rescheduledCalls}
@@ -167,24 +209,38 @@ const RescheduledCalls = ({ navigation }) => {
         onSearchChange={handleSearchChange}
         contentContainerStyle={[L.pB20]}
         onEndReached={() => {
-          console.log('onEndReached called - RescheduledCalls', {
+          const currentPage = appMode === 'leads' ? responseData?.scheduledLeadsCurrentPage : responseData?.rescheduledCallsCurrentPage;
+          const totalPages = appMode === 'leads' ? responseData?.scheduledLeadsTotalPages : responseData?.rescheduledCallsTotalPages;
+          
+          console.log('onEndReached called - RescheduledCalls/ScheduledLeads', {
             onEndReachedCalledDuringMomentum,
-            currentPage: responseDataDashBoard?.rescheduledCallsCurrentPage,
-            totalPages: responseDataDashBoard?.rescheduledCallsTotalPages,
-            isLoading: responseDataDashBoard?.isLoading
+            currentPage,
+            totalPages,
+            isLoading: responseData?.isLoading,
+            appMode
           });
           if (onEndReachedCalledDuringMomentum) return;
-          if (responseDataDashBoard?.rescheduledCallsCurrentPage < responseDataDashBoard?.rescheduledCallsTotalPages && !responseDataDashBoard?.isLoading) {
-            console.log('Loading next page - RescheduledCalls:', responseDataDashBoard?.rescheduledCallsCurrentPage);
-            get_rescheduled_calls(responseDataDashBoard?.rescheduledCallsCurrentPage, searchQuery);
+          if (currentPage < totalPages && !responseData?.isLoading) {
+            console.log('Loading next page:', currentPage);
+            if (appMode === 'leads') {
+              get_scheduled_leads(currentPage, searchQuery);
+            } else {
+              get_rescheduled_calls(currentPage, searchQuery);
+            }
             setonEndReachedCalledDuringMomentum(true);
           }
         }}
         onMomentumScrollBegin={() => { setonEndReachedCalledDuringMomentum(false) }}
         refreshing={false}
         onEndReachedThreshold={0.3}
-        onRefresh={() => get_rescheduled_calls(0, searchQuery)}
-        ListEmptyComponent={() => !responseDataDashBoard?.isLoading && <EmptyList />}
+        onRefresh={() => {
+          if (appMode === 'leads') {
+            get_scheduled_leads(0, searchQuery);
+          } else {
+            get_rescheduled_calls(0, searchQuery);
+          }
+        }}
+        ListEmptyComponent={() => !responseData?.isLoading && <EmptyList />}
       />
 
       {/* Info Modal */}

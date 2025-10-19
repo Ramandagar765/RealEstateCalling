@@ -25,7 +25,7 @@ export const normalize = (size) => {
 }
 
 export const C = StyleSheet.create({
-  bgPrimary: { backgroundColor: "#72246C" },  //#5046E5
+  bgPrimary: { backgroundColor: "#DC2626" },  // Red primary color
   bgTPH: { backgroundColor: '#262626' },
   bgTPL: { backgroundColor: '#00000040' },
   bgBlack: { backgroundColor: '#000000' },
@@ -37,7 +37,7 @@ export const C = StyleSheet.create({
   bgVLGray: { backgroundColor: '#D4D4D8' },
   bgLGray: { backgroundColor: '#E4E4E7' },
   bgScreen: { backgroundColor: '#FFFFFF' },
-  bgBlue: { backgroundColor: '#2196F3' },
+  bgBlue: { backgroundColor: '#DC2626' }, // Changed to red
   bgRed: { backgroundColor: '#FB4949' },
   bgRedDark: { backgroundColor: '#AB3939' },
   bgGreenDark: { backgroundColor: '#308A44' },
@@ -65,7 +65,7 @@ export const C = StyleSheet.create({
   bgdisablegray: { backgroundColor: '#CBCBCB' },
   bgScreenGray: { backgroundColor: '#f1f1f1' },
   bgPurple: { backgroundColor: '#6B46C1' },
-  bgLightBlue: { backgroundColor: '#E3F2FD' },
+  bgLightBlue: { backgroundColor: '#FEF2F2' }, // Light red background
   bgLightGreen: { backgroundColor: '#E8F5E8' },
 
 
@@ -78,7 +78,7 @@ export const C = StyleSheet.create({
   fcWhite: { color: '#FFFFFF' },
   fcPrimary: { color: '#F62947' },
   fcLightGray: { color: '#A1A1AA' },
-  fcBlue: { color: '#2196F3' },
+  fcBlue: { color: '#DC2626' }, // Changed to red
   fcRed: { color: '#FB4949' },
   // fcGreen: { color: '#1FBC75' },
   fcGreen: { color: '#5046E5' },
@@ -91,7 +91,7 @@ export const C = StyleSheet.create({
   fcDViolet: { color:'#6571FF' },
   fcOffGreen: { color:'#0AC074' },
   fcpink: { color:'#FF3E60'},
-  fcDarkBlue: { color: '#1565C0' },
+  fcDarkBlue: { color: '#991B1B' }, // Dark red
   fcDarkGreen: { color: '#2E7D32' },
 
   brLightGray: { borderColor: '#A1A1AA' },
@@ -99,7 +99,7 @@ export const C = StyleSheet.create({
   brLightest: { borderColor: '#eee' },
   brWhite: { borderColor: '#FFFFFF' },
   brBlack: { borderColor: '#000000' },
-  brPrimary: { borderColor: '#72246C' },
+  brPrimary: { borderColor: '#DC2626' },
   brRed: { borderColor: '#FB4949' },
   brGreen: { borderColor: '#48BB68' },
   brGray: { borderColor: '#BEBEBE' },
@@ -109,7 +109,7 @@ export const C = StyleSheet.create({
   brViolet: { borderColor: '#363B4D'},
 
 
-  tcPrimary: { tintColor: '#72246C' },
+  tcPrimary: { tintColor: '#DC2626' },
 
   feedShimmerBGColor: "#7A7A7A",
   feedShimmerColor: "#A1A1AA",
@@ -118,11 +118,11 @@ export const C = StyleSheet.create({
   searchShimmerBGColor: "#F0F0F0",
   searchShimmerColor: "#FAFAFA",
 
-  colorPrimary: '#72246C',
+  colorPrimary: '#DC2626',
   colorSecondary: '#1FBC75',
 
-  colorGradient1: '#72246C',
-  colorGradient2: '#381235',
+  colorGradient1: '#DC2626',
+  colorGradient2: '#991B1B',
 
   statusBarContentColor: 'light-content',
   statusBarContentColorDark: 'dark-content',
@@ -137,7 +137,7 @@ export const C = StyleSheet.create({
   white: "#ffffff",
   black: "#000000",
   tabColor: '#6D3805',
-  blue: '#2196F3',
+  blue: '#DC2626', // Changed to red
   yellow: '#F6B408',
   viloet:'#582F93',
   pink:'#FF3E60',
@@ -674,12 +674,12 @@ export const L = StyleSheet.create({
     shadowOpacity: 0.1,
   },
   card2: {
-    elevation: 2,
+    elevation: 9,
     borderRadius:10,
     shadowOpacity: 1,
     shadowColor: Platform.OS == 'ios' ? '#E4E4E7' : '#A1A1AA',
-    shadowOffset: { width: 1, height: 1 },
-    shadowRadius: 1,
+    shadowOffset: { width: 3, height: 4 },
+    shadowRadius: 5,
     backgroundColor:'white',
     overflow:'hidden',
   },

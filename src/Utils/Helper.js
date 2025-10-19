@@ -647,7 +647,12 @@ export const foregroundHandler = async (remoteMessage) => {
 export const successfulOutcomes = [
   { label: 'Interested', value: 'interested' },
   { label: 'Not Interested', value: 'not_interested' },
-  { label: 'Deal Closed', value: 'deal_closed' },
+  { label: 'Follow Up', value: 'follow_up' },
+  { label: 'Information Sharing', value: 'information_sharing' },
+  { label: 'Site Visit Planned', value: 'site_visit_planned' },
+  { label: 'Site Visit Done', value: 'site_visit_done' },
+  { label: 'Ready to Move', value: 'ready_to_move' },
+  { label: 'Sales Closed', value: 'sales_closed' },
 ];
 
 export const unsuccessfulOutcomes = [

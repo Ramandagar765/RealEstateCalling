@@ -7,12 +7,15 @@ import CallOutcomeModal from '#/components/common/CallOutcomeModal';
 import { Header, Loader, SearchableList } from '#/components/common';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchClosedDeals, recordCall } from './store';
+import { fetchClosedLeads, recordLeadCall } from '#/screens/Leads/store';
 import EmptyList from '#/components/common/EmptyList';
 import { hasValue } from '#/Utils';
 
 const ClosedDeals = ({ navigation }) => {
   const dispatch = useDispatch();
   const responseDataDashBoard = useSelector(state => state?.dashboard);
+  const responseDataLeads = useSelector(state => state?.leads);
+  const appMode = useSelector(state => state?.app?.mode || 'data');
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showOutcome, setShowOutcome] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState(null);
@@ -23,15 +26,26 @@ const ClosedDeals = ({ navigation }) => {
   const [closedDeals, setClosedDeals] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    get_closed_deals(0);
-  }, []);
+  // Choose the appropriate data source based on mode
+  const responseData = appMode === 'leads' ? responseDataLeads : responseDataDashBoard;
 
   useEffect(() => {
-    setClosedDeals(responseDataDashBoard?.closedDeals || []);
-    // Reset the momentum flag when closed deals change (new page loaded)
+    if (appMode === 'leads') {
+      get_closed_leads(0);
+    } else {
+      get_closed_deals(0);
+    }
+  }, [appMode]);
+
+  useEffect(() => {
+    if (appMode === 'leads') {
+      setClosedDeals(responseDataLeads?.closedLeads || []);
+    } else {
+      setClosedDeals(responseDataDashBoard?.closedDeals || []);
+    }
+    // Reset the momentum flag when closed deals/leads change (new page loaded)
     setonEndReachedCalledDuringMomentum(false);
-  }, [responseDataDashBoard?.closedDeals]);
+  }, [responseDataDashBoard?.closedDeals, responseDataLeads?.closedLeads, appMode]);
 
   const get_closed_deals = (page = 0, search = '') => {
     const page_number = page + 1;
@@ -41,6 +55,22 @@ const ClosedDeals = ({ navigation }) => {
     }
     console.log('closed deals url', url);
     dispatch(fetchClosedDeals({
+      url: url,
+      data: {
+        page: page_number,
+        search: search.trim()
+      }
+    }));
+  };
+
+  const get_closed_leads = (page = 0, search = '') => {
+    const page_number = page + 1;
+    let url = `?page=${page_number}`;
+    if (search.trim()) {
+      url += `&search=${encodeURIComponent(search.trim())}`;
+    }
+    console.log('closed leads url', url);
+    dispatch(fetchClosedLeads({
       url: url,
       data: {
         page: page_number,
@@ -81,12 +111,16 @@ const ClosedDeals = ({ navigation }) => {
         ...callData,
         contactId: pendingContact.contact.id
       };
-      await dispatch(recordCall(updatedCallData));
+      if (appMode === 'leads') {
+        await dispatch(recordLeadCall(updatedCallData));
+        get_closed_leads(0);
+      } else {
+        await dispatch(recordCall(updatedCallData));
+        get_closed_deals(0);
+      }
       setShowOutcome(false);
       setPendingContact(null);
       hasShownModal.current = false;
-      // Refresh the closed deals list
-      get_closed_deals(0);
     } catch (error) {
       console.error('Error recording call:', error);
     }
@@ -99,13 +133,21 @@ const ClosedDeals = ({ navigation }) => {
   };
 
   const handleRefresh = () => {
-    get_closed_deals(0, searchQuery);
+    if (appMode === 'leads') {
+      get_closed_leads(0, searchQuery);
+    } else {
+      get_closed_deals(0, searchQuery);
+    }
   };
 
   const handleSearchChange = (query) => {
     setSearchQuery(query);
     // Reset to first page when searching
-    get_closed_deals(0, query);
+    if (appMode === 'leads') {
+      get_closed_leads(0, query);
+    } else {
+      get_closed_deals(0, query);
+    }
   };
 
   const renderDealItem = ({ item }) => {
@@ -116,7 +158,8 @@ const ClosedDeals = ({ navigation }) => {
       lastCallTime: new Date(item.calledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       callCount: 1,
       status: 'closed',
-      notes: item.notes
+      notes: item.notes,
+      file_name:item?.contact?.file_name
     };
 
     return (
@@ -132,9 +175,9 @@ const ClosedDeals = ({ navigation }) => {
 
   return (
     <View style={[C.bgWhite, L.f1]}>
-      <Header navigation={navigation} label_center='Closed Deals' showDrawer={true} />
+      <Header navigation={navigation} label_center='Sales Closed' showDrawer={true} />
 
-      {responseDataDashBoard?.isLoading && <Loader />}
+      {responseData?.isLoading && <Loader />}
 
       <SearchableList
         data={closedDeals}
@@ -145,24 +188,38 @@ const ClosedDeals = ({ navigation }) => {
         onSearchChange={handleSearchChange}
         contentContainerStyle={[L.pB20]}
         onEndReached={() => {
-          console.log('onEndReached called - ClosedDeals', {
+          const currentPage = appMode === 'leads' ? responseData?.closedLeadsCurrentPage : responseData?.closedDealsCurrentPage;
+          const totalPages = appMode === 'leads' ? responseData?.closedLeadsTotalPages : responseData?.closedDealsTotalPages;
+          
+          console.log('onEndReached called - ClosedDeals/Leads', {
             onEndReachedCalledDuringMomentum,
-            currentPage: responseDataDashBoard?.closedDealsCurrentPage,
-            totalPages: responseDataDashBoard?.closedDealsTotalPages,
-            isLoading: responseDataDashBoard?.isLoading
+            currentPage,
+            totalPages,
+            isLoading: responseData?.isLoading,
+            appMode
           });
           if (onEndReachedCalledDuringMomentum) return;
-          if (responseDataDashBoard?.closedDealsCurrentPage < responseDataDashBoard?.closedDealsTotalPages && !responseDataDashBoard?.isLoading) {
-            console.log('Loading next page - ClosedDeals:', responseDataDashBoard?.closedDealsCurrentPage);
-            get_closed_deals(responseDataDashBoard?.closedDealsCurrentPage, searchQuery);
+          if (currentPage < totalPages && !responseData?.isLoading) {
+            console.log('Loading next page:', currentPage);
+            if (appMode === 'leads') {
+              get_closed_leads(currentPage, searchQuery);
+            } else {
+              get_closed_deals(currentPage, searchQuery);
+            }
             setonEndReachedCalledDuringMomentum(true);
           }
         }}
         onMomentumScrollBegin={() => { setonEndReachedCalledDuringMomentum(false) }}
         refreshing={false}
         onEndReachedThreshold={0.3}
-        onRefresh={() => get_closed_deals(0, searchQuery)}
-        ListEmptyComponent={() => !responseDataDashBoard?.isLoading && <EmptyList />}
+        onRefresh={() => {
+          if (appMode === 'leads') {
+            get_closed_leads(0, searchQuery);
+          } else {
+            get_closed_deals(0, searchQuery);
+          }
+        }}
+        ListEmptyComponent={() => !responseData?.isLoading && <EmptyList />}
       />
 
       {/* Info Modal */}
