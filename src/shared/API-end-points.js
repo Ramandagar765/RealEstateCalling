@@ -37,6 +37,7 @@ export const API = {
     //Team Lead
     team_members: `${BASE_URL}api/team-lead/team-members`,
     team_dashboard: `${BASE_URL}api/team-lead/team-member-dashboard`,
+    team_member_calls: `${BASE_URL}api/team-lead/team-member-calls`,
 
     // get project
     projects: `${BASE_URL}api/user/active-projects`,
@@ -60,4 +61,6 @@ export const API = {
     siteVisitPlannedLeads: `${BASE_URL}api/user/leads/calls/outcome/site-visit-planned`,
     siteVisitDoneLeads: `${BASE_URL}api/user/leads/calls/outcome/site-visit-done`,
     readyToMoveLeads: `${BASE_URL}api/user/leads/calls/outcome/ready-to-move`,
+    get_support_tickets: `${BASE_URL}api/support/tickets`,
+    create_support_ticket: `${BASE_URL}api/support/tickets`,
 }

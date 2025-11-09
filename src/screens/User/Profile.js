@@ -4,6 +4,7 @@ import { C, F, HT, L, WT } from '#/commonStyles/style-layout'
 import { CustomButton, Header, TextField } from '#/components/common'
 import { useDispatch, useSelector } from 'react-redux'
 import { log_out } from './store'
+import RootNavigation from '#/navigation/RootNavigation'
 
 const Profile = ({ navigation }) => {
   const responseDataUser = useSelector((state) => state.user);
@@ -24,7 +25,7 @@ const Profile = ({ navigation }) => {
 
   return (
     <View style={[L.f1]}>
-      <Header label_center={"Profile"} ic_left ic_left_style={[C.bgBlack]} navigation={navigation} />
+      <Header label_center={"Profile"} ic_left ic_left_style={[C.bgBlack]} navigation={navigation} ic_right="logout" ic_right_style={[C.bgBlack]} onPressRight={()=>RootNavigation.navigate('ReportIssues')} />
       <View style={[WT('100%'),L.aiC]}>
          <TextField
           label="Name"

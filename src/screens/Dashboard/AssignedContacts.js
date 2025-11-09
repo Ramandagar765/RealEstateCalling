@@ -201,7 +201,9 @@ const AssignedContacts = ({ navigation }) => {
 
   return (
     <View style={[C.bgWhite, L.f1]}>
-      <Header navigation={navigation} label_center={appMode === 'leads' ? 'Leads' : 'Calls'} showDrawer={true} ic_right='person-circle-outline' ic_right_style={[C.bgWhite]} onPressRight={() => navigation.navigate("Profile")} />
+      <Header navigation={navigation} label_center={appMode === 'leads' ? 'Leads' : 'Calls'} showDrawer={true} ic_right='person-circle-outline' ic_right_style={[C.bgWhite]} ic_right_tintColor={'black'} onPressRight={() => navigation.navigate("Profile")} />
+      {/* <Header label_center={"Profile"} ic_left ic_left_style={[C.bgBlack]} navigation={navigation} ic_right="logout" ic_right_style={[C.bgBlack]} onPressRight={()=>RootNavigation.navigate('ReportIssues')} /> */}
+        
 
       <ModeToggle />
 
@@ -212,7 +214,7 @@ const AssignedContacts = ({ navigation }) => {
             <Text style={[F.fsOne5, F.fw6, F.ffM, C.fcBlack, L.taC]}>
               {appMode === 'leads' ? 'Assigned Leads' : 'Assigned Data'}
             </Text>
-            <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseData?.stats?.assigned || responseData?.stats?.totalAssigned || 0}</Text>
+            <Text style={[F.fsOne8, F.fw7, C.fcBlack]}>{responseData?.stats?.assigned  || 0}</Text>
           </View>
           <TouchableOpacity
             style={[L.aiC, L.jcC, L.pV10, L.pH15, C.bgWhite, L.bR8, L.mH5,]}

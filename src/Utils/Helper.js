@@ -251,6 +251,7 @@ export const responseHandler = response => {
       } else if (response.status == 401) {
         // Invalid Api Key
         MyToast(response.data.message);
+        RootNavigation.reset('Login');
         if (response?.data?.account_type === 0) {
           RootNavigation.navigate('AccountType');
         }

@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { C, F, HT, L } from '#/commonStyles/style-layout';
+import { C, F, HT, L, WT } from '#/commonStyles/style-layout';
 import { Ionicons } from '#/components/Icons';
 
 import AssignedContacts from '#/screens/Dashboard/AssignedContacts';
@@ -11,8 +11,10 @@ import ClosedDeals from '#/screens/Dashboard/ClosedDeals';
 import OutcomeScreen from '#/screens/Dashboard/OutcomeScreen';
 import { useSelector } from 'react-redux';
 import TeamMember from '#/screens/Dashboard/TeamMember';
+
 import LastComment from '#/screens/Dashboard/LastComment';
 import CreateContact from '#/screens/Dashboard/CreateContact';
+import { Images } from '#/commonStyles/Images';
 
 const Drawer = createDrawerNavigator();
 const CustomDrawerContent = ({ navigation, state }) => {
@@ -23,7 +25,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
 
   // Choose stats based on current mode
   const stats = appMode === 'leads' ? leadsStats : dashboardStats;
-  
+
   const drawerItems = [
     {
       name: 'AssignedContacts',
@@ -105,7 +107,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
       name: 'ClosedDeals',
       label: 'Sales Closed',
       icon: 'trophy-outline',
-      count: stats.closedDeals || stats.closed_deals || 0, 
+      count: stats.closedDeals || stats.closed_deals || 0,
       component: ClosedDeals
     },
     ...(responseDataUser?.user_data?.role === 'team_lead' ? [{
@@ -129,31 +131,42 @@ const CustomDrawerContent = ({ navigation, state }) => {
   return (
     <View style={[L.f1, C.bgWhite]}>
       {/* Header */}
+
       <View style={[L.pH20, L.pV30, C.bgBlue]}>
-      <View style={[HT(50)]}/>
-        <Text style={[F.fsTwo4, F.fw7, C.fcWhite, F.ffB]}>Real Estate</Text>
+        <Image
+          source={Images.INA_drawer_logo}
+          style={[HT(125), WT(125), L.asC,L.bR100]}
+        />
+        <View style={[HT(20)]} />
+
+        <Text style={[F.fsTwo4, F.fw7, C.fcWhite, F.ffB]}>Invest N Assets</Text>
         <Text style={[F.fsOne6, C.fcWhite, F.ffR, L.mT5]}>
-          {appMode === 'leads' ? 'Leads Dashboard' : 'Calling Dashboard'}
+          {appMode === 'leads' ? 'Leads Dashboard' : 'Data Dashboard'}
         </Text>
       </View>
 
       {/* Navigation Items */}
-      <View style={[L.f1, L.pT20]}>
+      <ScrollView
+        style={[L.f1]}
+        contentContainerStyle={[L.pT20]}
+        showsVerticalScrollIndicator={false}
+      >
         {drawerItems.map((item, index) => {
           const isActive = activeRouteIndex === index;
-          
+
           return (
-            <TouchableOpacity key={item.name} style={[L.fdR, L.aiC, L.jcSB, L.pH20, L.pV15,isActive && C.bgLightBlue]}
+            <TouchableOpacity key={item.name} style={[L.fdR, L.aiC, L.jcSB, L.pH20, L.pV15, isActive && C.bgLightBlue]}
               onPress={() => navigation.navigate(item.name, item.params)}
               activeOpacity={0.7}>
               <View style={[L.fdR, L.aiC]}>
                 <Ionicons name={item.icon} size={24} color='black' />
-                <Text style={[F.fsOne6, F.fw5, F.ffM, L.mL15,isActive ? C.fcBlue : C.fcBlack]}>{item.label}</Text>
+                <Text style={[F.fsOne6, F.fw5, F.ffM, L.mL15, isActive ? C.fcBlue : C.fcBlack]}>{item.label}</Text>
               </View>
             </TouchableOpacity>
           );
         })}
-      </View>
+        <View style={[HT(210)]} />
+      </ScrollView>
     </View>
   );
 };
@@ -171,69 +184,69 @@ const DrawerNavigator = () => {
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       initialRouteName="AssignedContacts"
     >
-      <Drawer.Screen 
-        name="AssignedContacts" 
+      <Drawer.Screen
+        name="AssignedContacts"
         component={AssignedContacts}
         options={{ title: 'Assigned Contacts' }}
       />
-      <Drawer.Screen 
-        name="CreateContact" 
+      <Drawer.Screen
+        name="CreateContact"
         component={CreateContact}
         options={{ title: 'Create Contact' }}
       />
-      <Drawer.Screen 
-        name="Interested" 
+      <Drawer.Screen
+        name="Interested"
         component={OutcomeScreen}
         initialParams={{ outcomeType: 'interested', title: 'Interested' }}
         options={{ title: 'Interested' }}
       />
-      <Drawer.Screen 
-        name="FollowUp" 
+      <Drawer.Screen
+        name="FollowUp"
         component={OutcomeScreen}
         initialParams={{ outcomeType: 'follow_up', title: 'Follow Up' }}
         options={{ title: 'Follow Up' }}
       />
-      <Drawer.Screen 
-        name="InformationSharing" 
+      <Drawer.Screen
+        name="InformationSharing"
         component={OutcomeScreen}
         initialParams={{ outcomeType: 'information_sharing', title: 'Information Sharing' }}
         options={{ title: 'Information Sharing' }}
       />
-      <Drawer.Screen 
-        name="SiteVisitPlanned" 
+      <Drawer.Screen
+        name="SiteVisitPlanned"
         component={OutcomeScreen}
         initialParams={{ outcomeType: 'site_visit_planned', title: 'Site Visit Planned' }}
         options={{ title: 'Site Visit Planned' }}
       />
-      <Drawer.Screen 
-        name="SiteVisitDone" 
+      <Drawer.Screen
+        name="SiteVisitDone"
         component={OutcomeScreen}
         initialParams={{ outcomeType: 'site_visit_done', title: 'Site Visit Done' }}
         options={{ title: 'Site Visit Done' }}
       />
-      <Drawer.Screen 
-        name="ReadyToMove" 
+      <Drawer.Screen
+        name="ReadyToMove"
         component={OutcomeScreen}
         initialParams={{ outcomeType: 'ready_to_move', title: 'Ready to Move' }}
         options={{ title: 'Ready to Move' }}
       />
-      <Drawer.Screen 
-        name="Not Connected" 
+      <Drawer.Screen
+        name="Not Connected"
         component={UnsuccessfulCalls}
         options={{ title: 'Not Connected' }}
       />
-      <Drawer.Screen 
-        name="RescheduledCalls" 
+      <Drawer.Screen
+        name="RescheduledCalls"
         component={RescheduledCalls}
         options={{ title: 'Scheduled Calls' }}
       />
-      <Drawer.Screen 
-        name="ClosedDeals" 
+      <Drawer.Screen
+        name="ClosedDeals"
         component={ClosedDeals}
         options={{ title: 'Sales Closed' }}
       />
-       <Drawer.Screen 
-        name="Team Member" 
+      <Drawer.Screen
+        name="Team Member"
         component={TeamMember}
         options={{ title: 'Team Member' }}
       />

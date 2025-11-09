@@ -55,7 +55,7 @@ const Header = ({
             </View>
             <View style={[L.aiC, WT(label_left ? '13%' : '20%'), HT('100%'), L.even, L.jcB]}>
                 {ic_right && <TouchableOpacity activeOpacity={0.7} style={[WT(39),HT(39), L.jcC,L.aiC,L.bR10,  C.bgGreen, ic_right_style,]} onPress={onPressRight}>
-                    <Ionicons name={ic_right} size={20}/>
+                    <Ionicons name={ic_right} size={20} color={ic_right_tintColor ? ic_right_tintColor : 'white'}/>
                 </TouchableOpacity>}
             </View>
         </View>

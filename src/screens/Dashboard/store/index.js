@@ -403,6 +403,51 @@ export const team_dashboard = createAsyncThunk('dashboard/team_dashboard', async
     });
 });
 
+export const fetchTeamMemberCalls = createAsyncThunk('dashboard/fetchTeamMemberCalls', async (data, { dispatch, getState }) => {
+    console.log('fetching team member calls with data:', data);
+    dispatch(common_state({ isLoading: true }));
+    
+    const { memberId, outcome, page = 1, size = 15 } = data;
+    const url = `${API.team_member_calls}/${memberId}?outcome=${outcome}&page=${page}`;
+    
+    const teamMemberCalls = getState()?.dashboard?.teamMemberCalls;
+    
+    await performGetRequest(url).then(res => {
+        const apiResponse = responseHandler(res);
+        console.log('team member calls response:', apiResponse?.data);
+        
+        if (apiResponse?.data?.success) {
+            const newCalls = apiResponse?.data?.data || [];
+            const pagination = apiResponse?.data?.pagination || {};
+            const memberName = apiResponse?.data?.memberName || '';
+            const memberEmail = apiResponse?.data?.memberEmail || '';
+            
+            let finalCalls = [];
+            
+            if (page === 1) {
+                finalCalls = newCalls;
+            } else {
+                finalCalls = teamMemberCalls?.length > 0 ? [...teamMemberCalls, ...newCalls] : newCalls;
+            }
+            
+            dispatch(setTeamMemberCalls({
+                items: finalCalls,
+                totalPages: pagination.totalPages || 1,
+                currentPage: pagination.currentPage || page,
+                memberName,
+                memberEmail,
+                pagination
+            }));
+        }
+        dispatch(common_state());
+    }).catch(error => {
+        console.log('fetchTeamMemberCalls failure', error);
+        const apiResponse = responseHandler(error.response);
+        MyToast(apiResponse?.data?.message ?? '');
+        dispatch(common_state());
+    });
+});
+
 export const last_comment = createAsyncThunk('dashboard/last_comment', async (_, { dispatch }) => {
     console.log('fetching last comment');
     dispatch(common_state({ isLoading: true }));
@@ -524,10 +569,18 @@ const dashboardSlice = createSlice({
         // Team Members
         team_members_dasboard: null,
 
+        // Team member calls list
+        teamMemberCalls: [],
+        teamMemberCallsTotalPages: 0,
+        teamMemberCallsCurrentPage: 1,
+        teamMemberCallsMemberName: '',
+        teamMemberCallsMemberEmail: '',
+        teamMemberCallsPagination: null,
+
         // Projects
         projects: [],
 
-        // Last Comment
+        // Comments
         comments: []
     },
     reducers: {
@@ -610,6 +663,15 @@ const dashboardSlice = createSlice({
             state.team_members_dasboard = action?.payload || null;
             state.isLoading = false;
         },
+        setTeamMemberCalls: (state, action) => {
+            const data = action.payload || {};
+            state.teamMemberCalls = data.items || [];
+            state.teamMemberCallsTotalPages = data.totalPages || 0;
+            state.teamMemberCallsCurrentPage = data.currentPage || 1;
+            state.teamMemberCallsMemberName = data.memberName || '';
+            state.teamMemberCallsMemberEmail = data.memberEmail || '';
+            state.teamMemberCallsPagination = data.pagination || null;
+        },
         set_last_comment: (state, action) => {
             console.log('set_last_comment action.payload', action.payload);
             state.comments = action?.payload?.comments || [];
@@ -638,6 +700,7 @@ export const {
     setReadyToMoveCalls,
     common_state,
     set_team_dashboard,
+    setTeamMemberCalls,
     set_last_comment,
     setProjects
 } = dashboardSlice.actions;

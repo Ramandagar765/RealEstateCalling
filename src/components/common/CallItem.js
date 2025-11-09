@@ -11,7 +11,7 @@ import { Ionicons } from '#/components/Icons';
 import ContactAvatar from './ContactAvatar';
 import { formatDate3, hasValue } from '#/Utils';
 
-const CallItem = ({ item, onInfoPress, onCallPress, onWhatsAppPress, onUpdatePress, hideCallButton = false }) => {
+const CallItem = ({ item, onInfoPress, onCallPress, onWhatsAppPress, onUpdatePress, hideCallButton = false , show_call=true }) => {
   return (
     <TouchableOpacity key={item?.id} style={[WT('100%'), L.fdR, L.aiC, L.pB10, L.asC, L.brB05, { borderColor: 'gray' }, L.pH15, L.jcC]} activeOpacity={0.7}
       onPress={() => onInfoPress?.(item)}>
@@ -35,7 +35,7 @@ const CallItem = ({ item, onInfoPress, onCallPress, onWhatsAppPress, onUpdatePre
 
       <View style={[L.fdR, L.aiC]}>
         <Text style={[F.fsOne4, C.fcGray, L.mR15]}>{item?.lastCallTime || '2:24PM'}</Text>
-        {!hideCallButton && (
+        {!hideCallButton && show_call && (
           <TouchableOpacity style={[L.mR10]} onPress={() => (onCallPress ? onCallPress(item) : Linking.openURL(`tel:${item?.phone}`))}>
             <Ionicons name="call" size={20} color="gray" />
           </TouchableOpacity>
@@ -45,7 +45,7 @@ const CallItem = ({ item, onInfoPress, onCallPress, onWhatsAppPress, onUpdatePre
             <Ionicons name="logo-whatsapp" size={20} color="gray" />
           </TouchableOpacity>
         )}
-        {onUpdatePress && <TouchableOpacity onPress={() => onUpdatePress(item)}>
+        {onUpdatePress  && <TouchableOpacity onPress={() => onUpdatePress(item)}>
           <Ionicons name="chevron-forward-circle-outline" size={26} color="gray" />
         </TouchableOpacity>}
       </View>

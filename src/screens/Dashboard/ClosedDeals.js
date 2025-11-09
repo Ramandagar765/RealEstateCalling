@@ -4,7 +4,7 @@ import { C, L, F } from '#/commonStyles/style-layout';
 import CallItem from '#/components/common/CallItem';
 import ModalRoot from '#/components/common/Modal';
 import CallOutcomeModal from '#/components/common/CallOutcomeModal';
-import { Header, Loader, SearchableList } from '#/components/common';
+import { Header, Loader, SearchableList, Timeline } from '#/components/common';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchClosedDeals, recordCall } from './store';
 import { fetchClosedLeads, recordLeadCall } from '#/screens/Leads/store';
@@ -233,10 +233,11 @@ const ClosedDeals = ({ navigation }) => {
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Phone: {selectedDeal.contact.phone}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Email: {selectedDeal.contact.email || 'N/A'}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Budget: {selectedDeal.contact.budget || 'N/A'}</Text>
-              {hasValue(selectedDeal?.project) && <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Project: {selectedCall?.project?.name}</Text>}
+              {hasValue(selectedDeal?.project) && <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Project: {selectedDeal?.project?.name}</Text>}
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Deal Closed: {new Date(selectedDeal.calledAt).toLocaleString()}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM,]}>Notes:</Text>
-              {selectedDeal?.contactNotes?.map((note, index) => <Text key={index} style={[F.fsOne4, C.fcGray, F.ffM, L.mB0]}>{note?.note}</Text>)}
+              {/* {selectedDeal?.contactNotes?.map((note, index) => <Text key={index} style={[F.fsOne4, C.fcGray, F.ffM, L.mB0]}>{note?.note}</Text>)} */}
+            <Timeline notes={selectedDeal?.contactNotes || selectedDeal?.notes || []} title="Notes" />
             </>
           )}
 

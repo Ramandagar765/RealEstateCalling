@@ -4,10 +4,10 @@
 // export const BASE_URL = 'http://localhost:3000/'
 
 // For Android device
-// export const BASE_URL = 'http://192.168.1.195:3000/'
+// export const BASE_URL = 'http://192.168.1.222:3000/'
 // export const BASE_URL = 'http://192.168.1.210:3000/'
 
-// export const BASE_URL = 'https://341a509ceb2b.ngrok-free.app/'
+// export const BASE_URL = 'https://142c78d84b36.ngrok-free.app/'
 
 // For live server
 

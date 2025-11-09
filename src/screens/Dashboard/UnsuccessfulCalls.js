@@ -4,7 +4,7 @@ import { C, L, F } from '#/commonStyles/style-layout';
 import CallItem from '#/components/common/CallItem';
 import ModalRoot from '#/components/common/Modal';
 import CallOutcomeModal from '#/components/common/CallOutcomeModal';
-import { Header, Loader, SearchableList } from '#/components/common';
+import { Header, Loader, SearchableList, Timeline } from '#/components/common';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDashboardStats, fetchUnsuccessfulCalls, recordCall } from './store';
 import { fetchUnsuccessfulLeads, recordLeadCall, fetchLeadsDashboardStats } from '#/screens/Leads/store';
@@ -249,7 +249,8 @@ const UnsuccessfulCalls = ({ navigation }) => {
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Duration: {selectedCall.duration} seconds</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM, L.mB5]}>Status: {selectedCall.status}</Text>
               <Text style={[F.fsOne4, C.fcGray, F.ffM,]}>Notes:</Text>
-              {selectedCall?.contactNotes?.map((note, index) => <Text key={index} style={[F.fsOne4, C.fcGray, F.ffM, L.mB0]}>{note?.note}</Text>)}
+              {/* {selectedCall?.contactNotes?.map((note, index) => <Text key={index} style={[F.fsOne4, C.fcGray, F.ffM, L.mB0]}>{note?.note}</Text>)} */}
+            <Timeline notes={selectedCall?.contactNotes || selectedCall?.notes || []} title="Notes" />
             </>
           )}
 

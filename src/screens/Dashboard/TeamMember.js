@@ -5,6 +5,21 @@ import { Header } from '#/components/common';
 import { Ionicons } from '#/components/Icons';
 import { team_dashboard } from './store';
 import { useDispatch, useSelector } from 'react-redux';
+import RootNavigation from '#/navigation/RootNavigation';
+
+
+const outcomeMap = {
+      'Interested': 'interested',
+      'Not Interested': 'not-interested',
+      'Follow Up': 'follow_up',
+      'Info Sharing': 'information_sharing',
+      'Ready to Move': 'ready_to_move',
+      'Site Visit Planned': 'site_visit_planned',
+      'Site Visit Done': 'site_visit_done',
+      'Sales Closed': 'sales_closed',
+      'Not Connected': 'not_connected',
+      'Data Left': 'data_left',
+    };
 
 const TeamMember = ({ navigation }) => {
   const responseDataDashBoard = useSelector(state => state?.dashboard);
@@ -27,11 +42,33 @@ const TeamMember = ({ navigation }) => {
     setExpandedId(expandedId === id ? null : id);
   };
 
-  const renderStatItem = (label, value) => (
-    <View style={[L.aiC, L.jcC, { width: 80 }]}>
+  const handleStatPress = (member, statLabel, statValue) => {
+    console.log('statLabel', statLabel, 'statValue', statValue)
+
+    
+
+    const outcome = outcomeMap[statLabel];
+    console.log('outcome', outcome)
+    if (outcome) {
+      RootNavigation.navigate('TeamMemberCalls', {
+        memberId: member.id,
+        memberName: member.name,
+        outcome: outcome,
+        outcomeLabel: statLabel,
+        statValue: statValue,
+      });
+    }
+  };
+
+  const renderStatItem = (label, value, member) => (
+    <TouchableOpacity 
+      style={[L.aiC, L.jcC, { width: 80 }]}
+      onPress={() => handleStatPress(member, label, value)}
+      activeOpacity={value > 0 ? 0.7 : 1}
+    >
       <Text style={[F.fsOne6, F.ffB, C.fcBlack, L.mB2]}>{value || 0}</Text>
       <Text style={[F.fsOne2, F.ffR, C.fcGray, L.taC]}>{label}</Text>
-    </View>
+    </TouchableOpacity>
   );
 
   const renderStatsCard = (member) => {
@@ -54,7 +91,7 @@ const TeamMember = ({ navigation }) => {
         <Text style={[C.fcGray,L.mL10]}>swipe right to view more details</Text>
         <FlatList
           data={stats}
-          renderItem={({ item }) => renderStatItem(item.label, item.value)}
+          renderItem={({ item }) => renderStatItem(item.label, item.value, member)}
           keyExtractor={(_, index) => index.toString()}
           horizontal
           showsHorizontalScrollIndicator={false}
