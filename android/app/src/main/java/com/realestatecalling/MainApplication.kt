@@ -1,4 +1,4 @@
-package com.realestatecalling
+package com.ina_crm
 
 import android.app.Application
 import com.facebook.react.PackageList

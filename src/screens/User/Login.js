@@ -17,7 +17,7 @@ const Login = ({ navigation }) => {
     email: '',
     password: '',
   });
-
+  
   const handleData = (field) => (text) => {
     set_formdata({
       ...form_data,

@@ -64,15 +64,19 @@ const TextField = (props) => {
                 />
 
                 {
-                    props?.isPassword && (props?.editable !== false) && (
-                        <TouchableOpacity
-                            style={[]}
-                            hitSlop={{
-                                top: 10, bottom: 10, left: 10, right: 10
-                            }}
-                            onPress={updateSecureTextEntry}>
-                            <Icon name={isSecureTextEntry ? 'eye-off-outline' : 'eye-outline'} size={25} color='black' />
-                        </TouchableOpacity>
+                    props?.rightAccessory ? (
+                        props.rightAccessory
+                    ) : (
+                        props?.isPassword && (props?.editable !== false) && (
+                            <TouchableOpacity
+                                style={[]}
+                                hitSlop={{
+                                    top: 10, bottom: 10, left: 10, right: 10
+                                }}
+                                onPress={updateSecureTextEntry}>
+                                <Icon name={isSecureTextEntry ? 'eye-off-outline' : 'eye-outline'} size={25} color='black' />
+                            </TouchableOpacity>
+                        )
                     )
                 }
             </View>

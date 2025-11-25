@@ -1,5 +1,5 @@
-import { performGetRequest, performPostRequest, } from '#/constants/axios-utils';
-import { MyToast, responseHandler } from '#/Utils';
+import { performGetRequest, performPostRequest, performPostRequest_FormData } from '#/constants/axios-utils';
+import { MyToast, responseHandler, multipleMassage } from '#/Utils';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { API } from '#/shared/API-end-points';
 import RootNavigation from '#/navigation/RootNavigation';
@@ -68,7 +68,7 @@ export const get_support_tickets = createAsyncThunk('user/get_support_tickets', 
 
 export const create_support_ticket = createAsyncThunk('user/create_support_ticket', async (data, { dispatch }) => {
     dispatch(common_state({ isLoading: true }));
-    await performPostRequest(API.create_support_ticket,data).then(res => {
+    await performPostRequest_FormData(API.create_support_ticket, data).then(res => {
         const apiResponse = responseHandler(res);
         console.log('apiResponse?.data?.data', apiResponse?.data?.data)
         if (apiResponse?.data.success) {
@@ -77,8 +77,8 @@ export const create_support_ticket = createAsyncThunk('user/create_support_ticke
         }
     }).catch(error => {
         console.log('failure', error)
+        const apiResponse = responseHandler(error?.response);
         MyToast(apiResponse?.data?.message ?? 'Oops! Something went wrong. Please try again later.');
-        const apiResponse = responseHandler(error.response);
         multipleMassage(apiResponse?.data?.errors ?? '');
     }).finally(() => {
         dispatch(common_state());

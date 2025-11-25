@@ -1,5 +1,5 @@
 import React, { useEffect, useState, } from 'react';
-import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, Image, ScrollView } from 'react-native';
 import { C, L, F, WT, HT } from '#/commonStyles/style-layout';
 import { CustomButton, Header, Loader, SearchableList, TextField, Timeline } from '#/components/common';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,6 +8,7 @@ import EmptyList from '#/components/common/EmptyList';
 import { Ionicons } from '#/components/Icons';
 import { formatDate3, hasValue, MyToast } from '#/Utils';
 import ModalRoot from '#/components/common/Modal';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 const ReportIssues = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -16,6 +17,11 @@ const ReportIssues = ({ navigation }) => {
   const [supportTickets, setSupportTickets] = useState([]);
   const [issue, setIssue] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [attachments, setAttachments] = useState([]);
+
+  const MAX_ATTACHMENTS = 5;
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const allowedTypes = new Set(['image/jpg','image/jpeg','image/png','image/gif','image/webp','image/heic','image/heif']);
 
 
 
@@ -54,16 +60,51 @@ const ReportIssues = ({ navigation }) => {
     );
   };
 
+  const openPicker = async () => {
+    try {
+      const remaining = MAX_ATTACHMENTS - attachments.length;
+      if (remaining <= 0) {
+        MyToast(`You can attach up to ${MAX_ATTACHMENTS} images.`);
+        return;
+      }
+      const result = await launchImageLibrary({ mediaType: 'photo', selectionLimit: remaining, includeBase64: false });
+      if (result?.didCancel) return;
+      const assets = result?.assets || [];
+      const next = [];
+      for (const a of assets) {
+        const type = a.type || 'image/jpeg';
+        const size = a.fileSize || 0;
+        if (!allowedTypes.has(type)) { MyToast('Unsupported image type selected.'); continue; }
+        if (size > MAX_FILE_SIZE) { MyToast('Each image must be ≤ 10MB.'); continue; }
+        next.push({ uri: a.uri, type, fileName: a.fileName || 'attachment.jpg', fileSize: size });
+      }
+      if (!next.length) return;
+      setAttachments(prev => [...prev, ...next].slice(0, MAX_ATTACHMENTS));
+    } catch (e) {
+      console.log('picker error', e);
+      MyToast('Unable to pick images.');
+    }
+  };
+
+  const removeAttachment = (index) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
 
   const handleSubmit = () => {
     if(issue === '' || issue.trim() === '' || issue.length < 10){
       MyToast('Please enter a detailed issue (at least 10 characters).');
       return;
     }
-    dispatch(create_support_ticket({
-      issue: issue,
-    }))
+    const formData = new FormData();
+    formData.append('issue', issue.trim());
+    attachments.slice(0, MAX_ATTACHMENTS).forEach(a => {
+      formData.append('file', { uri: a.uri, type: a.type || 'image/jpeg', name: a.fileName || 'attachment.jpg' });
+    });
+    dispatch(create_support_ticket(formData));
     setShowModal(false);
+    setIssue('');
+    setAttachments([]);
   };
 
  
@@ -124,7 +165,29 @@ const ReportIssues = ({ navigation }) => {
           cntstyl={[WT('100%'),L.br05,C.brGray,HT(100)]}
           style={[L.taL,L.p5,HT('100%'),WT('100%'),L.p5,L.taT]}
           onChangeText={(text) => setIssue(text)}
+          rightAccessory={(
+            <TouchableOpacity onPress={openPicker} style={[L.pH8]}>
+              <Ionicons name={'add-circle-outline'} size={24} color={'black'} />
+            </TouchableOpacity>
+          )}
         />
+        {attachments.length > 0 && (
+          <View style={[L.mT10]}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {attachments.map((a, idx) => (
+                <View key={`${a.uri}-${idx}`} style={[L.mR10]}>
+                  <View style={[{ width: 70, height: 70 }, L.bR6, C.bgLightGray]}>
+                    <Image source={{ uri: a.uri }} style={[{ width: 70, height: 70 }, L.bR6]} resizeMode={'cover'} />
+                    <TouchableOpacity onPress={() => removeAttachment(idx)} style={[{ position: 'absolute', top: -8, right: -8 }]}> 
+                      <Ionicons name={'close-circle'} size={22} color={'#f54e4e'} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
+            <Text style={[F.fsOne2, F.ffM, C.fcGray, L.mT5]}>{attachments.length}/{MAX_ATTACHMENTS} images selected</Text>
+          </View>
+        )}
         <CustomButton
           label="Submit"
           style={[L.mT20, WT('100%'), HT(40), L.asC, C.bgBlack]}
